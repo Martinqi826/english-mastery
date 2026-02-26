@@ -288,16 +288,56 @@ english-mastery/
 ## 🚀 部署说明
 
 ### 当前部署信息
-- **平台**: Surge.sh
-- **域名**: english-mastery-2026.surge.sh
-- **账号**: workplaceqf@sina.com
 
-### 更新部署命令
+| 平台 | 地址 | 说明 |
+|------|------|------|
+| **Vercel** | https://english-mastery-wheat.vercel.app | 主部署（推荐） |
+| **Surge** | https://english-mastery-cn.surge.sh | 备用部署 |
+| **GitHub** | https://github.com/Martinqi826/english-mastery | 源码仓库 |
+
+### 自动部署（推荐）
+
+项目已连接 GitHub，推送代码后 Vercel 自动部署：
+
 ```bash
-export PATH="$HOME/nodejs/bin:$PATH"
 cd /Users/felixqi/CodeBuddy/20260225151512/english-mastery
-surge . english-mastery-2026.surge.sh
+git add .
+git commit -m "更新说明"
+git push
+# Vercel 会自动部署！
 ```
+
+### 手动部署命令
+
+**Surge 部署：**
+```bash
+cd /Users/felixqi/CodeBuddy/20260225151512/english-mastery
+surge . english-mastery-cn.surge.sh
+```
+
+**Vercel 部署：**
+```bash
+cd /Users/felixqi/CodeBuddy/20260225151512/english-mastery
+vercel --prod
+```
+
+---
+
+## 📱 远程开发指南
+
+### 方式 1：腾讯云 AI 代码助手 Web 版（推荐）
+- 访问：https://copilot.tencent.com
+- 手机/平板/电脑都可使用
+- 支持代码编辑和对话
+
+### 方式 2：GitHub Codespaces（云端开发）
+1. 访问 https://github.com/Martinqi826/english-mastery
+2. 按 `.` 键打开网页版 VS Code
+3. 或点击 Code → Codespaces 创建云端环境
+
+### 方式 3：手机端工具
+- **GitHub Mobile**：查看代码、提 Issue
+- **Vercel App**：查看部署状态
 
 ---
 

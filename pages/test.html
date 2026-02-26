@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试评估 - English Mastery</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .test-card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: var(--spacing-xl); margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-md); }
+    .question-number { font-size: 0.875rem; color: var(--text-muted); margin-bottom: var(--spacing-sm); }
+    .question-text { font-size: 1.125rem; font-weight: 500; margin-bottom: var(--spacing-lg); }
+    .options-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+    .option-item { padding: var(--spacing-md); border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s; }
+    .option-item:hover { border-color: var(--primary-color); background: var(--bg-tertiary); }
+    .option-item.selected { border-color: var(--primary-color); background: var(--primary-light); color: white; }
+    .option-item.correct { border-color: var(--success-color); background: var(--success-color); color: white; }
+    .option-item.wrong { border-color: var(--danger-color); background: var(--danger-color); color: white; }
+    .test-progress { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+    .progress-dots { display: flex; gap: var(--spacing-xs); }
+    .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-color); }
+    .progress-dot.current { background: var(--primary-color); }
+    .progress-dot.answered { background: var(--success-color); }
+    .result-card { text-align: center; padding: var(--spacing-2xl); }
+    .result-score { font-size: 4rem; font-weight: 700; color: var(--primary-color); }
+    .result-label { font-size: 1.25rem; color: var(--text-muted); margin-top: var(--spacing-sm); }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="header"><div class="container"><div class="header-content"><div class="logo"><span class="logo-icon">🎯</span><span>English Mastery</span></div><div class="day-badge" id="dayBadge">Day 1 / 30</div></div></div></header>
+    <nav class="nav"><div class="container"><ul class="nav-list">
+      <li class="nav-item"><a href="../index.html" class="nav-link"><span>📊</span> 仪表盘</a></li>
+      <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>📖</span> 词汇学习</a></li>
+      <li class="nav-item"><a href="listening.html" class="nav-link"><span>👂</span> 听力训练</a></li>
+      <li class="nav-item"><a href="reading.html" class="nav-link"><span>📚</span> 阅读练习</a></li>
+      <li class="nav-item"><a href="writing.html" class="nav-link"><span>✍️</span> 写作练习</a></li>
+      <li class="nav-item"><a href="test.html" class="nav-link active"><span>🎯</span> 测试评估</a></li>
+      <li class="nav-item"><a href="calendar.html" class="nav-link"><span>📅</span> 打卡日历</a></li>
+    </ul></div></nav>
+    <main class="main-content">
+      <div class="container">
+        <h1 style="margin-bottom: var(--spacing-lg);">🎯 每日测验</h1>
+        <div class="test-card" id="testCard">
+          <div class="test-progress">
+            <span id="questionProgress">第 1 题 / 共 5 题</span>
+            <div class="progress-dots" id="progressDots"></div>
+          </div>
+          <div class="question-number" id="questionNumber">Question 1</div>
+          <div class="question-text" id="questionText">Loading...</div>
+          <div class="options-list" id="optionsList"></div>
+          <div style="margin-top: var(--spacing-xl); text-align: center;">
+            <button class="btn btn-primary btn-lg" id="nextBtn" onclick="nextQuestion()">下一题</button>
+          </div>
+        </div>
+        <div class="test-card hidden" id="resultCard">
+          <div class="result-card">
+            <div style="font-size: 4rem; margin-bottom: var(--spacing-lg);">🎉</div>
+            <div class="result-score" id="resultScore">0%</div>
+            <div class="result-label">正确率</div>
+            <p class="text-muted mt-lg" id="resultMessage">继续加油！</p>
+            <button class="btn btn-primary btn-lg mt-xl" onclick="location.href='../index.html'">返回仪表盘</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="../js/storage.js"></script>
+  <script>
+    const questions = [
+      { question: "What does 'agenda' mean?", options: ["日程表", "代理人", "农业", "年龄"], correct: 0 },
+      { question: "Choose the correct word: 'We need to ___ the new policy.'", options: ["implement", "important", "import", "impose"], correct: 0 },
+      { question: "'Collaborate' means:", options: ["崩溃", "收集", "合作", "庆祝"], correct: 2 },
+      { question: "What is a 'stakeholder'?", options: ["牛排持有者", "利益相关者", "赌徒", "股票"], correct: 1 },
+      { question: "'Streamline' in business means:", options: ["溪流", "精简流程", "直线", "蒸汽"], correct: 1 }
+    ];
+    let currentQuestion = 0;
+    let answers = [];
+    let correctCount = 0;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentDay = Storage.getCurrentDay();
+      document.getElementById('dayBadge').textContent = `Day ${currentDay} / 30`;
+      renderProgressDots();
+      showQuestion();
+    });
+    
+    function renderProgressDots() {
+      const dots = document.getElementById('progressDots');
+      dots.innerHTML = questions.map((_, i) => `<div class="progress-dot" id="dot-${i}"></div>`).join('');
+    }
+    
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById('questionProgress').textContent = `第 ${currentQuestion + 1} 题 / 共 ${questions.length} 题`;
+      document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1}`;
+      document.getElementById('questionText').textContent = q.question;
+      document.getElementById('optionsList').innerHTML = q.options.map((opt, i) => 
+        `<div class="option-item" onclick="selectOption(${i})">${String.fromCharCode(65 + i)}. ${opt}</div>`
+      ).join('');
+      document.getElementById(`dot-${currentQuestion}`).classList.add('current');
+    }
+    
+    function selectOption(index) {
+      answers[currentQuestion] = index;
+      document.querySelectorAll('.option-item').forEach((opt, i) => {
+        opt.classList.toggle('selected', i === index);
+      });
+    }
+    
+    function nextQuestion() {
+      if (answers[currentQuestion] === undefined) { alert('请选择一个答案'); return; }
+      
+      const q = questions[currentQuestion];
+      if (answers[currentQuestion] === q.correct) correctCount++;
+      
+      document.getElementById(`dot-${currentQuestion}`).classList.remove('current');
+      document.getElementById(`dot-${currentQuestion}`).classList.add('answered');
+      
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+    
+    function showResult() {
+      const accuracy = Math.round((correctCount / questions.length) * 100);
+      document.getElementById('testCard').classList.add('hidden');
+      document.getElementById('resultCard').classList.remove('hidden');
+      document.getElementById('resultScore').textContent = accuracy + '%';
+      document.getElementById('resultMessage').textContent = accuracy >= 80 ? '太棒了！' : accuracy >= 60 ? '还不错！' : '继续努力！';
+      
+      Storage.updateTodayTask('test', true);
+      Storage.addStudyTime(10);
+      const progress = Storage.getProgress();
+      ['vocabulary', 'listening', 'reading', 'writing', 'speaking'].forEach(skill => {
+        progress[skill] = Math.min(100, (progress[skill] || 30) + 0.5);
+      });
+      progress.overall = Storage.calculateOverallProgress(progress);
+      Storage.setProgress(progress);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Mastery - 英语进阶大师</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <span class="logo-icon">🎯</span>
+            <span>English Mastery</span>
+          </div>
+          <div class="header-right">
+            <div class="day-badge" id="dayBadge">Day 1 / 30</div>
+            <div class="user-menu" id="userMenu">
+              <button class="user-btn" onclick="toggleUserDropdown()">
+                <span class="user-avatar" id="userAvatar">👤</span>
+                <span class="user-name" id="userName">用户</span>
+                <span class="dropdown-arrow">▼</span>
+              </button>
+              <div class="user-dropdown" id="userDropdown">
+                <div class="dropdown-header">
+                  <span class="dropdown-email" id="userEmail">user@example.com</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item" onclick="handleLogout()">
+                  <span>🚪</span> 退出登录
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="container">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link active">
+              <span>📊</span> 仪表盘
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/vocabulary.html" class="nav-link">
+              <span>📖</span> 词汇学习
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/listening.html" class="nav-link">
+              <span>👂</span> 听力训练
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/reading.html" class="nav-link">
+              <span>📚</span> 阅读练习
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/writing.html" class="nav-link">
+              <span>✍️</span> 写作练习
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/test.html" class="nav-link">
+              <span>🎯</span> 测试评估
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/calendar.html" class="nav-link">
+              <span>📅</span> 打卡日历
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <div class="dashboard-grid">
+          <!-- Main Column -->
+          <div class="dashboard-main">
+            <!-- Progress Card -->
+            <div class="card animate-slide-up">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <span>📈</span> 总体进度
+                </h2>
+                <span class="level-badge level-b2" id="levelBadge">B2 日常水平</span>
+              </div>
+              <div class="card-body">
+                <div class="progress-container">
+                  <div class="progress-header">
+                    <span class="progress-label">距离目标 C1-C2 水平</span>
+                    <span class="progress-value" id="overallProgress">40%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 40%"></div>
+                  </div>
+                  <div class="progress-info">
+                    <span>起点: B1-B2</span>
+                    <span>目标: C1-C2 (母语水平)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid animate-slide-up">
+              <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="streakDays">0</div>
+                <div class="stat-label">连续打卡天数</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="todayTasks">0/5</div>
+                <div class="stat-label">今日完成任务</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-value" id="wordsLearned">0</div>
+                <div class="stat-label">已学词汇</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-value" id="totalTime">0h</div>
+                <div class="stat-label">累计学习时长</div>
+              </div>
+            </div>
+
+            <!-- Today's Tasks -->
+            <div class="card tasks-section animate-slide-up">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <span>🎯</span> 今日任务
+                </h2>
+                <span class="text-muted" id="taskProgress">0/5 完成</span>
+              </div>
+              <div class="card-body" style="padding: 0;">
+                <ul class="task-list" id="taskList">
+                  <li class="task-item" data-task="vocabulary">
+                    <div class="task-checkbox" onclick="toggleTask('vocabulary')">
+                      <span class="check-icon">✓</span>
+                    </div>
+                    <div class="task-content">
+                      <div class="task-title">📖 词汇学习 - 商务词汇 (30词)</div>
+                      <div class="task-meta">预计 15 分钟</div>
+                    </div>
+                    <a href="pages/vocabulary.html" class="task-action" id="taskBtn-vocabulary">开始学习</a>
+                  </li>
+                  <li class="task-item" data-task="listening">
+                    <div class="task-checkbox" onclick="toggleTask('listening')">
+                      <span class="check-icon">✓</span>
+                    </div>
+                    <div class="task-content">
+                      <div class="task-title">👂 听力练习 - TED 演讲片段</div>
+                      <div class="task-meta">预计 15 分钟</div>
+                    </div>
+                    <a href="pages/listening.html" class="task-action" id="taskBtn-listening">开始学习</a>
+                  </li>
+                  <li class="task-item" data-task="reading">
+                    <div class="task-checkbox" onclick="toggleTask('reading')">
+                      <span class="check-icon">✓</span>
+                    </div>
+                    <div class="task-content">
+                      <div class="task-title">📚 阅读练习 - 商务邮件范例</div>
+                      <div class="task-meta">预计 15 分钟</div>
+                    </div>
+                    <a href="pages/reading.html" class="task-action" id="taskBtn-reading">开始学习</a>
+                  </li>
+                  <li class="task-item" data-task="writing">
+                    <div class="task-checkbox" onclick="toggleTask('writing')">
+                      <span class="check-icon">✓</span>
+                    </div>
+                    <div class="task-content">
+                      <div class="task-title">✍️ 写作练习 - 自我介绍</div>
+                      <div class="task-meta">预计 20 分钟</div>
+                    </div>
+                    <a href="pages/writing.html" class="task-action" id="taskBtn-writing">开始学习</a>
+                  </li>
+                  <li class="task-item" data-task="test">
+                    <div class="task-checkbox" onclick="toggleTask('test')">
+                      <span class="check-icon">✓</span>
+                    </div>
+                    <div class="task-content">
+                      <div class="task-title">🎯 每日测验 - Day 1 小测</div>
+                      <div class="task-meta">预计 10 分钟</div>
+                    </div>
+                    <a href="pages/test.html" class="task-action" id="taskBtn-test">开始测验</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Check-in Button -->
+            <div class="text-center animate-slide-up">
+              <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()">
+                ✅ 完成今日打卡
+              </button>
+              <p class="text-muted mt-md" id="checkinHint">完成任意 3 项任务即可打卡</p>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="dashboard-sidebar">
+            <!-- Community Stats - 今日学习动态 -->
+            <div class="card animate-slide-up community-stats-card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <span>👥</span> 今日学习动态
+                </h3>
+                <span class="live-dot"></span>
+              </div>
+              <div class="card-body">
+                <div class="community-stats">
+                  <div class="community-stat-item">
+                    <div class="community-stat-icon completed">🎉</div>
+                    <div class="community-stat-info">
+                      <div class="community-stat-value" id="completedCount">--</div>
+                      <div class="community-stat-label">人完成学习</div>
+                    </div>
+                  </div>
+                  <div class="community-stat-divider"></div>
+                  <div class="community-stat-item">
+                    <div class="community-stat-icon learning">📖</div>
+                    <div class="community-stat-info">
+                      <div class="community-stat-value" id="learningCount">--</div>
+                      <div class="community-stat-label">人参与学习</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="community-progress">
+                  <div class="community-progress-bar">
+                    <div class="community-progress-fill" id="communityProgressFill" style="width: 0%"></div>
+                  </div>
+                  <div class="community-progress-text">
+                    <span id="completionRate">0%</span> 完成率
+                  </div>
+                </div>
+                <div class="community-update-time">
+                  <span>🔄</span> <span id="updateTime">更新中...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mini Calendar -->
+            <div class="card animate-slide-up">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <span>📅</span> 打卡日历
+                </h3>
+                <span class="text-muted" id="currentMonth">2026年2月</span>
+              </div>
+              <div class="card-body" style="padding: var(--spacing-sm);">
+                <div class="calendar-weekdays">
+                  <span>日</span>
+                  <span>一</span>
+                  <span>二</span>
+                  <span>三</span>
+                  <span>四</span>
+                  <span>五</span>
+                  <span>六</span>
+                </div>
+                <div class="calendar-days" id="calendarDays">
+                  <!-- Generated by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Radar Chart -->
+            <div class="card animate-slide-up">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <span>📊</span> 能力雷达图
+                </h3>
+              </div>
+              <div class="card-body">
+                <div class="radar-container">
+                  <canvas id="radarChart" width="250" height="250"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Streak & Time -->
+            <div class="card animate-slide-up">
+              <div class="card-body">
+                <div class="streak-display">
+                  <div class="streak-fire">🔥</div>
+                  <div class="streak-number" id="streakDisplay">0</div>
+                  <div class="streak-label">天连续学习</div>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: var(--spacing-md) 0;">
+                <div class="study-time">
+                  <span class="time-value" id="todayTime">0</span>
+                  <span class="time-label">分钟<br>今日学习</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="text-align: center; padding: var(--spacing-lg); color: var(--text-muted); font-size: 0.875rem;">
+      <p>English Mastery © 2026 | 30天达成母语水平</p>
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="js/auth.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/checkin.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // 检查登录状态
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!Auth.isLoggedIn()) {
+        window.location.href = 'pages/auth.html';
+        return;
+      }
+      
+      // 显示用户信息
+      const user = Auth.getCurrentUser();
+      if (user) {
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+      }
+    });
+    
+    // 切换用户下拉菜单
+    function toggleUserDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      dropdown.classList.toggle('show');
+    }
+    
+    // 点击其他地方关闭下拉菜单
+    document.addEventListener('click', function(e) {
+      const userMenu = document.getElementById('userMenu');
+      const dropdown = document.getElementById('userDropdown');
+      if (userMenu && !userMenu.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+    
+    // 退出登录
+    function handleLogout() {
+      Auth.logout();
+      window.location.href = 'pages/auth.html';
+    }
+  </script>
+</body>
+</html>

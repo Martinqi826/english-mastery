@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>写作练习 - English Mastery</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .writing-container { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-xl); }
+    @media (max-width: 1024px) { .writing-container { grid-template-columns: 1fr; } }
+    .prompt-card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: var(--spacing-xl); box-shadow: var(--shadow-md); }
+    .prompt-title { font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-md); }
+    .prompt-description { color: var(--text-secondary); margin-bottom: var(--spacing-lg); line-height: 1.6; }
+    .prompt-requirements { background: var(--bg-tertiary); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); }
+    .prompt-requirements h4 { font-size: 0.875rem; font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .prompt-requirements ul { margin: 0; padding-left: var(--spacing-lg); font-size: 0.875rem; color: var(--text-secondary); }
+    .editor-card { background: var(--bg-primary); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); }
+    .editor-header { padding: var(--spacing-md) var(--spacing-lg); background: var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center; }
+    .editor-textarea { width: 100%; min-height: 400px; padding: var(--spacing-lg); border: none; font-size: 1rem; line-height: 1.8; resize: vertical; }
+    .editor-textarea:focus { outline: none; }
+    .editor-footer { padding: var(--spacing-md) var(--spacing-lg); background: var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center; }
+    .feedback-section { background: var(--bg-primary); border-radius: var(--radius-lg); padding: var(--spacing-xl); margin-top: var(--spacing-lg); }
+    .score-circle { width: 60px; height: 60px; border-radius: 50%; background: var(--success-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: white; }
+    .feedback-item { padding: var(--spacing-md); border-left: 3px solid var(--primary-color); background: var(--bg-tertiary); margin-bottom: var(--spacing-md); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .feedback-item.success { border-color: var(--success-color); }
+    .feedback-item.warning { border-color: var(--warning-color); }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="header"><div class="container"><div class="header-content"><div class="logo"><span class="logo-icon">🎯</span><span>English Mastery</span></div><div class="day-badge" id="dayBadge">Day 1 / 30</div></div></div></header>
+    <nav class="nav"><div class="container"><ul class="nav-list">
+      <li class="nav-item"><a href="../index.html" class="nav-link"><span>📊</span> 仪表盘</a></li>
+      <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>📖</span> 词汇学习</a></li>
+      <li class="nav-item"><a href="listening.html" class="nav-link"><span>👂</span> 听力训练</a></li>
+      <li class="nav-item"><a href="reading.html" class="nav-link"><span>📚</span> 阅读练习</a></li>
+      <li class="nav-item"><a href="writing.html" class="nav-link active"><span>✍️</span> 写作练习</a></li>
+      <li class="nav-item"><a href="test.html" class="nav-link"><span>🎯</span> 测试评估</a></li>
+      <li class="nav-item"><a href="calendar.html" class="nav-link"><span>📅</span> 打卡日历</a></li>
+    </ul></div></nav>
+    <main class="main-content">
+      <div class="container">
+        <h1 style="margin-bottom: var(--spacing-lg);">✍️ 写作练习</h1>
+        <div class="writing-container">
+          <div class="prompt-card">
+            <div class="prompt-title">📝 写作任务</div>
+            <div class="prompt-description">Write a professional self-introduction email to send to a new team when joining a company. Include your background, expertise, and what you hope to contribute.</div>
+            <div class="prompt-requirements">
+              <h4>✅ 要求</h4>
+              <ul><li>字数：150-200词</li><li>使用正式商务语言</li><li>包含问候语和结束语</li><li>提及专业背景</li></ul>
+            </div>
+            <div class="prompt-requirements" style="background: #EFF6FF;">
+              <h4>💡 提示词汇</h4>
+              <ul><li><strong>background</strong> - 背景</li><li><strong>expertise</strong> - 专业知识</li><li><strong>collaborate</strong> - 合作</li><li><strong>contribute</strong> - 贡献</li></ul>
+            </div>
+          </div>
+          <div class="editor-card">
+            <div class="editor-header"><span>✍️ 写作区域</span><span>字数: <span id="wordCount">0</span>/200</span></div>
+            <textarea class="editor-textarea" id="writingEditor" placeholder="Subject: Introduction...&#10;&#10;Dear Team,&#10;&#10;..." oninput="updateWordCount()"></textarea>
+            <div class="editor-footer">
+              <span id="saveStatus">未保存</span>
+              <button class="btn btn-primary" onclick="submitWriting()">提交作文</button>
+            </div>
+          </div>
+        </div>
+        <div class="feedback-section hidden" id="feedbackSection">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+            <h3>📊 写作反馈</h3>
+            <div style="display: flex; align-items: center; gap: var(--spacing-md);"><div class="score-circle">85</div><div><div style="font-weight: 600;">优秀</div></div></div>
+          </div>
+          <div class="feedback-item success"><div style="font-weight: 600;">✅ 结构完整</div><div style="font-size: 0.875rem;">文章结构清晰完整。</div></div>
+          <div class="feedback-item warning"><div style="font-weight: 600;">💡 建议</div><div style="font-size: 0.875rem;">可增加更多具体经验描述。</div></div>
+          <div style="text-align: center; margin-top: var(--spacing-xl);"><button class="btn btn-primary btn-lg" onclick="location.href='../index.html'">返回仪表盘</button></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="../js/storage.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentDay = Storage.getCurrentDay();
+      document.getElementById('dayBadge').textContent = `Day ${currentDay} / 30`;
+    });
+    function updateWordCount() {
+      const text = document.getElementById('writingEditor').value;
+      const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+      document.getElementById('wordCount').textContent = words;
+    }
+    function submitWriting() {
+      const text = document.getElementById('writingEditor').value;
+      const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+      if (words < 50) { alert('请至少写50词'); return; }
+      Storage.updateTodayTask('writing', true);
+      Storage.addStudyTime(20);
+      const progress = Storage.getProgress();
+      progress.writing = Math.min(100, (progress.writing || 32) + 2);
+      Storage.setProgress(progress);
+      document.getElementById('feedbackSection').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

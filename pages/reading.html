@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阅读练习 - English Mastery</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .article-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .article-header {
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .article-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .article-meta {
+      display: flex;
+      gap: var(--spacing-md);
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+    
+    .article-content {
+      padding: var(--spacing-xl);
+      line-height: 1.8;
+      font-size: 1.0625rem;
+    }
+    
+    .article-content p {
+      margin-bottom: var(--spacing-lg);
+      text-align: justify;
+    }
+    
+    .highlight-word {
+      background: linear-gradient(transparent 60%, #FEF3C7 60%);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .highlight-word:hover {
+      background: #FDE68A;
+    }
+    
+    .word-tooltip {
+      position: fixed;
+      background: var(--text-primary);
+      color: white;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      max-width: 300px;
+      z-index: 1000;
+      box-shadow: var(--shadow-lg);
+      display: none;
+    }
+    
+    .word-tooltip.show {
+      display: block;
+    }
+    
+    .word-tooltip-word {
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .word-tooltip-phonetic {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.75rem;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .reading-tools {
+      display: flex;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .tool-btn {
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .tool-btn:hover {
+      border-color: var(--primary-color);
+    }
+    
+    .tool-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+    
+    .comprehension-section {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin-top: var(--spacing-lg);
+    }
+    
+    .question-card {
+      padding: var(--spacing-lg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .question-text {
+      font-weight: 500;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .answer-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    
+    .answer-option {
+      padding: var(--spacing-md);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .answer-option:hover {
+      border-color: var(--primary-color);
+      background: var(--bg-tertiary);
+    }
+    
+    .answer-option.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+      color: white;
+    }
+    
+    .answer-option.correct {
+      border-color: var(--success-color);
+      background: var(--success-color);
+      color: white;
+    }
+    
+    .answer-option.wrong {
+      border-color: var(--danger-color);
+      background: var(--danger-color);
+      color: white;
+    }
+    
+    .articles-list {
+      display: grid;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .article-item {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    
+    .article-item:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+    
+    .article-item.completed {
+      border-color: var(--success-color);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent);
+    }
+    
+    .article-icon {
+      font-size: 2rem;
+    }
+    
+    .article-info {
+      flex: 1;
+    }
+    
+    .article-item-title {
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .article-item-meta {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <span class="logo-icon">🎯</span>
+            <span>English Mastery</span>
+          </div>
+          <div class="day-badge" id="dayBadge">Day 1 / 30</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="container">
+        <ul class="nav-list">
+          <li class="nav-item"><a href="../index.html" class="nav-link"><span>📊</span> 仪表盘</a></li>
+          <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>📖</span> 词汇学习</a></li>
+          <li class="nav-item"><a href="listening.html" class="nav-link"><span>👂</span> 听力训练</a></li>
+          <li class="nav-item"><a href="reading.html" class="nav-link active"><span>📚</span> 阅读练习</a></li>
+          <li class="nav-item"><a href="writing.html" class="nav-link"><span>✍️</span> 写作练习</a></li>
+          <li class="nav-item"><a href="test.html" class="nav-link"><span>🎯</span> 测试评估</a></li>
+          <li class="nav-item"><a href="calendar.html" class="nav-link"><span>📅</span> 打卡日历</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <h1 style="margin-bottom: var(--spacing-lg);">📚 阅读练习</h1>
+        
+        <!-- Articles List -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+          <div class="card-header">
+            <h2 class="card-title"><span>📄</span> 今日阅读材料</h2>
+            <span class="text-muted" id="readingProgress">0/3 完成</span>
+          </div>
+          <div class="card-body">
+            <div class="articles-list" id="articlesList">
+              <div class="article-item" onclick="selectArticle(0)">
+                <div class="article-icon">📧</div>
+                <div class="article-info">
+                  <div class="article-item-title">Professional Email: Project Update</div>
+                  <div class="article-item-meta">商务邮件 | 约300词 | 中等难度</div>
+                </div>
+                <span id="article-status-0">○</span>
+              </div>
+              <div class="article-item" onclick="selectArticle(1)">
+                <div class="article-icon">📊</div>
+                <div class="article-info">
+                  <div class="article-item-title">Business Report: Q4 Performance</div>
+                  <div class="article-item-meta">商务报告 | 约400词 | 中等难度</div>
+                </div>
+                <span id="article-status-1">○</span>
+              </div>
+              <div class="article-item" onclick="selectArticle(2)">
+                <div class="article-icon">📰</div>
+                <div class="article-info">
+                  <div class="article-item-title">Industry News: Tech Trends 2026</div>
+                  <div class="article-item-meta">行业新闻 | 约350词 | 较难</div>
+                </div>
+                <span id="article-status-2">○</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Article Reader -->
+        <div class="article-card" id="articleCard">
+          <div class="article-header">
+            <h2 class="article-title" id="articleTitle">Professional Email: Project Update</h2>
+            <div class="article-meta">
+              <span>📧 商务邮件</span>
+              <span>📖 约300词</span>
+              <span>⏱️ 预计5分钟</span>
+            </div>
+          </div>
+          
+          <div class="reading-tools">
+            <button class="tool-btn" onclick="toggleHighlight()">🔍 高亮生词</button>
+            <button class="tool-btn" onclick="increaseFontSize()">A+</button>
+            <button class="tool-btn" onclick="decreaseFontSize()">A-</button>
+          </div>
+          
+          <div class="article-content" id="articleContent">
+            <p>Dear Team,</p>
+            
+            <p>I hope this email finds you well. I wanted to provide you with a <span class="highlight-word" data-word="comprehensive" data-meaning="全面的，综合的" data-phonetic="/ˌkɑːmprɪˈhensɪv/">comprehensive</span> update on our Q4 project <span class="highlight-word" data-word="initiatives" data-meaning="倡议，计划" data-phonetic="/ɪˈnɪʃətɪvz/">initiatives</span> and share some exciting developments.</p>
+            
+            <p>First, I'm pleased to announce that we have successfully completed the <span class="highlight-word" data-word="preliminary" data-meaning="初步的，预备的" data-phonetic="/prɪˈlɪmɪneri/">preliminary</span> phase of our digital transformation project. The team has demonstrated <span class="highlight-word" data-word="exceptional" data-meaning="杰出的，卓越的" data-phonetic="/ɪkˈsepʃənl/">exceptional</span> <span class="highlight-word" data-word="dedication" data-meaning="奉献，专注" data-phonetic="/ˌdedɪˈkeɪʃn/">dedication</span> and has <span class="highlight-word" data-word="exceeded" data-meaning="超过，超越" data-phonetic="/ɪkˈsiːdɪd/">exceeded</span> our initial expectations.</p>
+            
+            <p>Moving forward, we will be <span class="highlight-word" data-word="implementing" data-meaning="实施，执行" data-phonetic="/ˈɪmplɪmentɪŋ/">implementing</span> several key changes to <span class="highlight-word" data-word="streamline" data-meaning="精简，使高效" data-phonetic="/ˈstriːmlaɪn/">streamline</span> our <span class="highlight-word" data-word="workflow" data-meaning="工作流程" data-phonetic="/ˈwɜːrkfloʊ/">workflow</span>. These include the adoption of new project management tools and the <span class="highlight-word" data-word="establishment" data-meaning="建立，设立" data-phonetic="/ɪˈstæblɪʃmənt/">establishment</span> of weekly cross-functional meetings.</p>
+            
+            <p>I would like to <span class="highlight-word" data-word="emphasize" data-meaning="强调" data-phonetic="/ˈemfəsaɪz/">emphasize</span> the importance of maintaining clear communication channels throughout this <span class="highlight-word" data-word="transition" data-meaning="过渡，转变" data-phonetic="/trænˈzɪʃn/">transition</span> period. Please feel free to reach out if you have any questions or concerns.</p>
+            
+            <p>Best regards,<br>Project Manager</p>
+          </div>
+        </div>
+        
+        <!-- Comprehension Questions -->
+        <div class="comprehension-section" id="comprehensionSection">
+          <h3 class="card-title" style="margin-bottom: var(--spacing-lg);"><span>❓</span> 阅读理解</h3>
+          
+          <div id="questionsContainer">
+            <div class="question-card" data-question="0">
+              <div class="question-text">1. What is the main purpose of this email?</div>
+              <div class="answer-options">
+                <div class="answer-option" onclick="selectAnswer(0, 0)">A. To request more resources</div>
+                <div class="answer-option" onclick="selectAnswer(0, 1)">B. To provide a project update</div>
+                <div class="answer-option" onclick="selectAnswer(0, 2)">C. To announce layoffs</div>
+                <div class="answer-option" onclick="selectAnswer(0, 3)">D. To schedule a meeting</div>
+              </div>
+            </div>
+            
+            <div class="question-card" data-question="1">
+              <div class="question-text">2. What has the team accomplished so far?</div>
+              <div class="answer-options">
+                <div class="answer-option" onclick="selectAnswer(1, 0)">A. Completed the entire project</div>
+                <div class="answer-option" onclick="selectAnswer(1, 1)">B. Completed the preliminary phase</div>
+                <div class="answer-option" onclick="selectAnswer(1, 2)">C. Started the planning process</div>
+                <div class="answer-option" onclick="selectAnswer(1, 3)">D. Hired new team members</div>
+              </div>
+            </div>
+            
+            <div class="question-card" data-question="2">
+              <div class="question-text">3. What changes will be implemented?</div>
+              <div class="answer-options">
+                <div class="answer-option" onclick="selectAnswer(2, 0)">A. New office location</div>
+                <div class="answer-option" onclick="selectAnswer(2, 1)">B. New project management tools and weekly meetings</div>
+                <div class="answer-option" onclick="selectAnswer(2, 2)">C. Salary increases</div>
+                <div class="answer-option" onclick="selectAnswer(2, 3)">D. Remote work policy</div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin-top: var(--spacing-lg);">
+            <button class="btn btn-primary btn-lg" id="submitBtn" onclick="submitAnswers()">提交答案</button>
+          </div>
+          
+          <div id="resultSection" class="hidden" style="text-align: center; padding: var(--spacing-xl);">
+            <div style="font-size: 4rem; margin-bottom: var(--spacing-lg);">🎉</div>
+            <h2>阅读完成！</h2>
+            <p class="text-muted mt-md">正确率: <span id="accuracy">0</span>%</p>
+            <button class="btn btn-primary btn-lg mt-lg" onclick="location.href='../index.html'">返回仪表盘</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Word Tooltip -->
+    <div class="word-tooltip" id="wordTooltip">
+      <div class="word-tooltip-word" id="tooltipWord"></div>
+      <div class="word-tooltip-phonetic" id="tooltipPhonetic"></div>
+      <div class="word-tooltip-meaning" id="tooltipMeaning"></div>
+    </div>
+  </div>
+
+  <script src="../js/storage.js"></script>
+  <script>
+    const articles = [
+      {
+        title: "Professional Email: Project Update",
+        category: "商务邮件",
+        words: 300,
+        correctAnswers: [1, 1, 1]
+      },
+      {
+        title: "Business Report: Q4 Performance",
+        category: "商务报告",
+        words: 400,
+        correctAnswers: [1, 1, 1]
+      },
+      {
+        title: "Industry News: Tech Trends 2026",
+        category: "行业新闻",
+        words: 350,
+        correctAnswers: [1, 1, 1]
+      }
+    ];
+    
+    let currentArticle = 0;
+    let userAnswers = [-1, -1, -1];
+    let completedArticles = [];
+    let fontSize = 16;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      updateDayBadge();
+      loadProgress();
+      updateUI();
+      setupHighlightWords();
+    });
+    
+    function updateDayBadge() {
+      const currentDay = Storage.getCurrentDay();
+      document.getElementById('dayBadge').textContent = `Day ${currentDay} / 30`;
+    }
+    
+    function loadProgress() {
+      const saved = localStorage.getItem('em_reading_progress');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.date === Storage.getTodayString()) {
+          completedArticles = data.completedArticles || [];
+        }
+      }
+    }
+    
+    function saveProgress() {
+      localStorage.setItem('em_reading_progress', JSON.stringify({
+        date: Storage.getTodayString(),
+        completedArticles
+      }));
+    }
+    
+    function updateUI() {
+      completedArticles.forEach(index => {
+        const item = document.querySelectorAll('.article-item')[index];
+        const status = document.getElementById(`article-status-${index}`);
+        if (item) item.classList.add('completed');
+        if (status) status.textContent = '✅';
+      });
+      
+      document.getElementById('readingProgress').textContent = `${completedArticles.length}/3 完成`;
+    }
+    
+    function selectArticle(index) {
+      currentArticle = index;
+      userAnswers = [-1, -1, -1];
+      // 实际应用中这里会加载不同的文章内容
+      document.getElementById('articleTitle').textContent = articles[index].title;
+      
+      // 重置问题选项
+      document.querySelectorAll('.answer-option').forEach(opt => {
+        opt.classList.remove('selected', 'correct', 'wrong');
+      });
+      
+      document.getElementById('questionsContainer').classList.remove('hidden');
+      document.getElementById('submitBtn').classList.remove('hidden');
+      document.getElementById('resultSection').classList.add('hidden');
+    }
+    
+    function setupHighlightWords() {
+      const words = document.querySelectorAll('.highlight-word');
+      const tooltip = document.getElementById('wordTooltip');
+      
+      words.forEach(word => {
+        word.addEventListener('mouseenter', function(e) {
+          const rect = this.getBoundingClientRect();
+          document.getElementById('tooltipWord').textContent = this.dataset.word;
+          document.getElementById('tooltipPhonetic').textContent = this.dataset.phonetic;
+          document.getElementById('tooltipMeaning').textContent = this.dataset.meaning;
+          
+          tooltip.style.left = rect.left + 'px';
+          tooltip.style.top = (rect.bottom + 10) + 'px';
+          tooltip.classList.add('show');
+        });
+        
+        word.addEventListener('mouseleave', function() {
+          tooltip.classList.remove('show');
+        });
+      });
+    }
+    
+    function selectAnswer(questionIndex, answerIndex) {
+      userAnswers[questionIndex] = answerIndex;
+      
+      const card = document.querySelector(`.question-card[data-question="${questionIndex}"]`);
+      card.querySelectorAll('.answer-option').forEach((opt, i) => {
+        if (i === answerIndex) {
+          opt.classList.add('selected');
+        } else {
+          opt.classList.remove('selected');
+        }
+      });
+    }
+    
+    function submitAnswers() {
+      const article = articles[currentArticle];
+      let correct = 0;
+      
+      userAnswers.forEach((answer, i) => {
+        const card = document.querySelector(`.question-card[data-question="${i}"]`);
+        const options = card.querySelectorAll('.answer-option');
+        
+        if (answer === article.correctAnswers[i]) {
+          options[answer].classList.add('correct');
+          correct++;
+        } else {
+          if (answer >= 0) {
+            options[answer].classList.add('wrong');
+          }
+          options[article.correctAnswers[i]].classList.add('correct');
+        }
+      });
+      
+      const accuracy = Math.round((correct / 3) * 100);
+      
+      if (!completedArticles.includes(currentArticle)) {
+        completedArticles.push(currentArticle);
+        saveProgress();
+      }
+      
+      document.getElementById('submitBtn').classList.add('hidden');
+      document.getElementById('resultSection').classList.remove('hidden');
+      document.getElementById('accuracy').textContent = accuracy;
+      
+      updateUI();
+      
+      // 检查是否全部完成
+      if (completedArticles.length >= 3) {
+        Storage.updateTodayTask('reading', true);
+        Storage.addStudyTime(15);
+        
+        const progress = Storage.getProgress();
+        progress.reading = Math.min(100, (progress.reading || 38) + 2);
+        Storage.setProgress(progress);
+      }
+    }
+    
+    function increaseFontSize() {
+      fontSize = Math.min(24, fontSize + 2);
+      document.getElementById('articleContent').style.fontSize = fontSize + 'px';
+    }
+    
+    function decreaseFontSize() {
+      fontSize = Math.max(12, fontSize - 2);
+      document.getElementById('articleContent').style.fontSize = fontSize + 'px';
+    }
+    
+    function toggleHighlight() {
+      const words = document.querySelectorAll('.highlight-word');
+      words.forEach(word => {
+        word.style.background = word.style.background ? '' : 'transparent';
+      });
+    }
+  </script>
+</body>
+</html>

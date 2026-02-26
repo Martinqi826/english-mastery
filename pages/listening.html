@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>听力训练 - English Mastery</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .audio-player {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .audio-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .audio-meta {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .play-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .play-btn:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+    
+    .audio-progress {
+      flex: 1;
+    }
+    
+    .audio-progress-bar {
+      height: 6px;
+      background: var(--progress-bg);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .audio-progress-fill {
+      height: 100%;
+      background: var(--primary-color);
+      border-radius: var(--radius-full);
+      width: 0%;
+      transition: width 0.1s;
+    }
+    
+    .audio-time {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: var(--spacing-xs);
+    }
+    
+    .speed-controls {
+      display: flex;
+      gap: var(--spacing-xs);
+    }
+    
+    .speed-btn {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .speed-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+    
+    .transcript {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      max-height: 300px;
+      overflow-y: auto;
+      line-height: 1.8;
+    }
+    
+    .transcript-line {
+      margin-bottom: var(--spacing-sm);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .transcript-line:hover {
+      background: var(--bg-secondary);
+    }
+    
+    .transcript-line.active {
+      background: var(--primary-light);
+      color: white;
+    }
+    
+    .transcript-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-right: var(--spacing-sm);
+    }
+    
+    .transcript-line.active .transcript-time {
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .quiz-section {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin-top: var(--spacing-lg);
+    }
+    
+    .quiz-question {
+      font-size: 1.125rem;
+      font-weight: 500;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    
+    .quiz-option {
+      padding: var(--spacing-md);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .quiz-option:hover {
+      border-color: var(--primary-color);
+      background: var(--bg-tertiary);
+    }
+    
+    .quiz-option.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+      color: white;
+    }
+    
+    .quiz-option.correct {
+      border-color: var(--success-color);
+      background: var(--success-color);
+      color: white;
+    }
+    
+    .quiz-option.wrong {
+      border-color: var(--danger-color);
+      background: var(--danger-color);
+      color: white;
+    }
+    
+    .materials-list {
+      display: grid;
+      gap: var(--spacing-md);
+    }
+    
+    .material-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .material-card:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .material-card.completed {
+      border-color: var(--success-color);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent);
+    }
+    
+    .material-icon {
+      font-size: 2rem;
+    }
+    
+    .material-info {
+      flex: 1;
+    }
+    
+    .material-title {
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .material-meta {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    
+    .material-status {
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <span class="logo-icon">🎯</span>
+            <span>English Mastery</span>
+          </div>
+          <div class="day-badge" id="dayBadge">Day 1 / 30</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="container">
+        <ul class="nav-list">
+          <li class="nav-item"><a href="../index.html" class="nav-link"><span>📊</span> 仪表盘</a></li>
+          <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>📖</span> 词汇学习</a></li>
+          <li class="nav-item"><a href="listening.html" class="nav-link active"><span>👂</span> 听力训练</a></li>
+          <li class="nav-item"><a href="reading.html" class="nav-link"><span>📚</span> 阅读练习</a></li>
+          <li class="nav-item"><a href="writing.html" class="nav-link"><span>✍️</span> 写作练习</a></li>
+          <li class="nav-item"><a href="test.html" class="nav-link"><span>🎯</span> 测试评估</a></li>
+          <li class="nav-item"><a href="calendar.html" class="nav-link"><span>📅</span> 打卡日历</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <h1 style="margin-bottom: var(--spacing-lg);">👂 听力训练</h1>
+        
+        <!-- Materials List -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+          <div class="card-header">
+            <h2 class="card-title"><span>📻</span> 今日听力材料</h2>
+            <span class="text-muted" id="listeningProgress">0/3 完成</span>
+          </div>
+          <div class="card-body">
+            <div class="materials-list" id="materialsList">
+              <div class="material-card" onclick="selectMaterial(0)">
+                <div class="material-icon">🎙️</div>
+                <div class="material-info">
+                  <div class="material-title">TED Talk: The Power of Introverts</div>
+                  <div class="material-meta">时长: 5:30 | 难度: 中等</div>
+                </div>
+                <div class="material-status" id="status-0">○</div>
+              </div>
+              <div class="material-card" onclick="selectMaterial(1)">
+                <div class="material-icon">💼</div>
+                <div class="material-info">
+                  <div class="material-title">Business Meeting: Project Discussion</div>
+                  <div class="material-meta">时长: 3:45 | 难度: 中等</div>
+                </div>
+                <div class="material-status" id="status-1">○</div>
+              </div>
+              <div class="material-card" onclick="selectMaterial(2)">
+                <div class="material-icon">📞</div>
+                <div class="material-info">
+                  <div class="material-title">Phone Call: Client Follow-up</div>
+                  <div class="material-meta">时长: 2:20 | 难度: 简单</div>
+                </div>
+                <div class="material-status" id="status-2">○</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Audio Player -->
+        <div class="audio-player" id="playerSection">
+          <div class="audio-title" id="audioTitle">TED Talk: The Power of Introverts</div>
+          <div class="audio-meta" id="audioMeta">Susan Cain | 商务沟通 | 中等难度</div>
+          
+          <div class="audio-controls">
+            <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+            <div class="audio-progress">
+              <div class="audio-progress-bar" onclick="seek(event)">
+                <div class="audio-progress-fill" id="audioProgress"></div>
+              </div>
+              <div class="audio-time">
+                <span id="currentTime">0:00</span>
+                <span id="totalTime">5:30</span>
+              </div>
+            </div>
+            <div class="speed-controls">
+              <button class="speed-btn" onclick="setSpeed(0.75)">0.75x</button>
+              <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+              <button class="speed-btn" onclick="setSpeed(1.25)">1.25x</button>
+              <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+            </div>
+          </div>
+          
+          <div class="card-header" style="padding: 0; border: none; margin-bottom: var(--spacing-md);">
+            <h3 class="card-title"><span>📝</span> 文字稿</h3>
+            <button class="btn btn-secondary" onclick="toggleTranscript()">显示/隐藏</button>
+          </div>
+          
+          <div class="transcript" id="transcript">
+            <div class="transcript-line" data-time="0">
+              <span class="transcript-time">0:00</span>
+              When I was nine years old, I went off to summer camp for the first time.
+            </div>
+            <div class="transcript-line" data-time="5">
+              <span class="transcript-time">0:05</span>
+              And my mother packed me a suitcase full of books.
+            </div>
+            <div class="transcript-line" data-time="10">
+              <span class="transcript-time">0:10</span>
+              Which to me seemed like a perfectly natural thing to do.
+            </div>
+            <div class="transcript-line" data-time="15">
+              <span class="transcript-time">0:15</span>
+              Because in my family, reading was the primary group activity.
+            </div>
+            <div class="transcript-line" data-time="20">
+              <span class="transcript-time">0:20</span>
+              And this might sound antisocial to you, but for us it was really just a different way of being social.
+            </div>
+            <div class="transcript-line" data-time="28">
+              <span class="transcript-time">0:28</span>
+              You have the warmth of your family sitting right next to you.
+            </div>
+            <div class="transcript-line" data-time="33">
+              <span class="transcript-time">0:33</span>
+              But you are also free to go roaming around the adventureland inside your own mind.
+            </div>
+            <div class="transcript-line" data-time="40">
+              <span class="transcript-time">0:40</span>
+              And I had this idea that camp was going to be just like this, but better.
+            </div>
+            <div class="transcript-line" data-time="46">
+              <span class="transcript-time">0:46</span>
+              I had a vision of 10 girls sitting in a cabin cozily reading books in their matching nightgowns.
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quiz Section -->
+        <div class="quiz-section" id="quizSection">
+          <h3 class="card-title" style="margin-bottom: var(--spacing-lg);"><span>❓</span> 理解测试</h3>
+          
+          <div id="quizContainer">
+            <div class="quiz-question" id="quizQuestion">
+              1. What did the speaker's mother pack for summer camp?
+            </div>
+            <div class="quiz-options" id="quizOptions">
+              <div class="quiz-option" onclick="selectOption(this, 0)">A. Clothes and snacks</div>
+              <div class="quiz-option" onclick="selectOption(this, 1)">B. A suitcase full of books</div>
+              <div class="quiz-option" onclick="selectOption(this, 2)">C. Sports equipment</div>
+              <div class="quiz-option" onclick="selectOption(this, 3)">D. Electronic devices</div>
+            </div>
+            
+            <div style="margin-top: var(--spacing-lg); text-align: center;">
+              <button class="btn btn-primary btn-lg" id="submitQuiz" onclick="submitAnswer()">提交答案</button>
+              <button class="btn btn-success btn-lg hidden" id="nextQuestion" onclick="nextQuestion()">下一题</button>
+            </div>
+          </div>
+          
+          <div id="quizComplete" class="hidden" style="text-align: center; padding: var(--spacing-xl);">
+            <div style="font-size: 4rem; margin-bottom: var(--spacing-lg);">🎉</div>
+            <h2>听力练习完成！</h2>
+            <p class="text-muted mt-md">正确率: <span id="accuracy">0</span>%</p>
+            <button class="btn btn-primary btn-lg mt-lg" onclick="location.href='../index.html'">返回仪表盘</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/storage.js"></script>
+  <script>
+    // 听力材料数据
+    const materials = [
+      {
+        title: "TED Talk: The Power of Introverts",
+        speaker: "Susan Cain",
+        category: "商务沟通",
+        difficulty: "中等",
+        duration: "5:30",
+        questions: [
+          {
+            question: "What did the speaker's mother pack for summer camp?",
+            options: ["Clothes and snacks", "A suitcase full of books", "Sports equipment", "Electronic devices"],
+            correct: 1
+          },
+          {
+            question: "How did the speaker's family view reading together?",
+            options: ["As antisocial behavior", "As a different way of being social", "As a waste of time", "As mandatory activity"],
+            correct: 1
+          }
+        ]
+      },
+      {
+        title: "Business Meeting: Project Discussion",
+        speaker: "Team Lead",
+        category: "工作场景",
+        difficulty: "中等",
+        duration: "3:45",
+        questions: [
+          {
+            question: "What is the main topic of the meeting?",
+            options: ["Budget review", "Project timeline", "Team building", "Performance review"],
+            correct: 1
+          }
+        ]
+      },
+      {
+        title: "Phone Call: Client Follow-up",
+        speaker: "Sales Rep",
+        category: "客户沟通",
+        difficulty: "简单",
+        duration: "2:20",
+        questions: [
+          {
+            question: "What is the purpose of the call?",
+            options: ["To complain", "To follow up on a proposal", "To cancel a meeting", "To request a refund"],
+            correct: 1
+          }
+        ]
+      }
+    ];
+    
+    let currentMaterial = 0;
+    let currentQuestion = 0;
+    let selectedAnswer = -1;
+    let correctCount = 0;
+    let completedMaterials = [];
+    let isPlaying = false;
+    let playbackRate = 1;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      updateDayBadge();
+      loadProgress();
+      updateUI();
+    });
+    
+    function updateDayBadge() {
+      const currentDay = Storage.getCurrentDay();
+      document.getElementById('dayBadge').textContent = `Day ${currentDay} / 30`;
+    }
+    
+    function loadProgress() {
+      const saved = localStorage.getItem('em_listening_progress');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.date === Storage.getTodayString()) {
+          completedMaterials = data.completedMaterials || [];
+        }
+      }
+    }
+    
+    function saveProgress() {
+      localStorage.setItem('em_listening_progress', JSON.stringify({
+        date: Storage.getTodayString(),
+        completedMaterials
+      }));
+    }
+    
+    function updateUI() {
+      // 更新材料列表状态
+      completedMaterials.forEach(index => {
+        const card = document.querySelectorAll('.material-card')[index];
+        const status = document.getElementById(`status-${index}`);
+        if (card) card.classList.add('completed');
+        if (status) status.textContent = '✅';
+      });
+      
+      document.getElementById('listeningProgress').textContent = `${completedMaterials.length}/3 完成`;
+    }
+    
+    function selectMaterial(index) {
+      currentMaterial = index;
+      currentQuestion = 0;
+      correctCount = 0;
+      selectedAnswer = -1;
+      
+      const material = materials[index];
+      document.getElementById('audioTitle').textContent = material.title;
+      document.getElementById('audioMeta').textContent = `${material.speaker} | ${material.category} | ${material.difficulty}难度`;
+      document.getElementById('totalTime').textContent = material.duration;
+      
+      showQuestion();
+      document.getElementById('quizComplete').classList.add('hidden');
+      document.getElementById('quizContainer').classList.remove('hidden');
+    }
+    
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      document.getElementById('playBtn').textContent = isPlaying ? '⏸' : '▶';
+      
+      if (isPlaying) {
+        simulatePlayback();
+      }
+    }
+    
+    function simulatePlayback() {
+      // 模拟播放进度
+      let progress = 0;
+      const interval = setInterval(() => {
+        if (!isPlaying || progress >= 100) {
+          clearInterval(interval);
+          return;
+        }
+        progress += 0.5;
+        document.getElementById('audioProgress').style.width = `${progress}%`;
+        
+        // 更新时间显示
+        const totalSeconds = 330; // 5:30
+        const currentSeconds = Math.floor((progress / 100) * totalSeconds);
+        const minutes = Math.floor(currentSeconds / 60);
+        const seconds = currentSeconds % 60;
+        document.getElementById('currentTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        // 高亮当前文字稿行
+        const lines = document.querySelectorAll('.transcript-line');
+        lines.forEach(line => {
+          const lineTime = parseInt(line.dataset.time);
+          if (currentSeconds >= lineTime && currentSeconds < lineTime + 5) {
+            line.classList.add('active');
+          } else {
+            line.classList.remove('active');
+          }
+        });
+      }, 100 / playbackRate);
+    }
+    
+    function setSpeed(speed) {
+      playbackRate = speed;
+      document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+    
+    function toggleTranscript() {
+      const transcript = document.getElementById('transcript');
+      transcript.style.display = transcript.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    function showQuestion() {
+      const material = materials[currentMaterial];
+      if (currentQuestion >= material.questions.length) {
+        completeListening();
+        return;
+      }
+      
+      const q = material.questions[currentQuestion];
+      document.getElementById('quizQuestion').textContent = `${currentQuestion + 1}. ${q.question}`;
+      
+      const optionsHtml = q.options.map((opt, i) => 
+        `<div class="quiz-option" onclick="selectOption(this, ${i})">${String.fromCharCode(65 + i)}. ${opt}</div>`
+      ).join('');
+      document.getElementById('quizOptions').innerHTML = optionsHtml;
+      
+      document.getElementById('submitQuiz').classList.remove('hidden');
+      document.getElementById('nextQuestion').classList.add('hidden');
+      selectedAnswer = -1;
+    }
+    
+    function selectOption(element, index) {
+      document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedAnswer = index;
+    }
+    
+    function submitAnswer() {
+      if (selectedAnswer === -1) {
+        alert('请选择一个答案');
+        return;
+      }
+      
+      const material = materials[currentMaterial];
+      const q = material.questions[currentQuestion];
+      const options = document.querySelectorAll('.quiz-option');
+      
+      if (selectedAnswer === q.correct) {
+        options[selectedAnswer].classList.add('correct');
+        correctCount++;
+      } else {
+        options[selectedAnswer].classList.add('wrong');
+        options[q.correct].classList.add('correct');
+      }
+      
+      document.getElementById('submitQuiz').classList.add('hidden');
+      document.getElementById('nextQuestion').classList.remove('hidden');
+    }
+    
+    function nextQuestion() {
+      currentQuestion++;
+      showQuestion();
+    }
+    
+    function completeListening() {
+      if (!completedMaterials.includes(currentMaterial)) {
+        completedMaterials.push(currentMaterial);
+        saveProgress();
+      }
+      
+      const material = materials[currentMaterial];
+      const accuracy = Math.round((correctCount / material.questions.length) * 100);
+      
+      document.getElementById('quizContainer').classList.add('hidden');
+      document.getElementById('quizComplete').classList.remove('hidden');
+      document.getElementById('accuracy').textContent = accuracy;
+      
+      updateUI();
+      
+      // 检查是否全部完成
+      if (completedMaterials.length >= 3) {
+        Storage.updateTodayTask('listening', true);
+        Storage.addStudyTime(15);
+        
+        const progress = Storage.getProgress();
+        progress.listening = Math.min(100, (progress.listening || 35) + 2);
+        Storage.setProgress(progress);
+      }
+    }
+  </script>
+</body>
+</html>

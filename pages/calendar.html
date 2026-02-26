@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>打卡日历 - English Mastery</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .calendar-large { background: var(--bg-primary); border-radius: var(--radius-lg); padding: var(--spacing-xl); box-shadow: var(--shadow-md); }
+    .calendar-header-large { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+    .calendar-title-large { font-size: 1.5rem; font-weight: 700; }
+    .calendar-nav-large { display: flex; gap: var(--spacing-sm); }
+    .calendar-nav-btn-large { width: 40px; height: 40px; border: 1px solid var(--border-color); background: var(--bg-primary); border-radius: var(--radius-md); cursor: pointer; font-size: 1.25rem; }
+    .calendar-weekdays-large { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 600; color: var(--text-muted); padding: var(--spacing-md) 0; border-bottom: 1px solid var(--border-color); }
+    .calendar-days-large { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--spacing-sm); padding-top: var(--spacing-md); }
+    .calendar-day-large { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s; font-size: 1.125rem; }
+    .calendar-day-large:hover { background: var(--bg-tertiary); }
+    .calendar-day-large.today { background: var(--primary-light); color: white; font-weight: 700; }
+    .calendar-day-large.checked { background: var(--success-color); color: white; }
+    .calendar-day-large.missed { background: var(--danger-color); color: white; opacity: 0.6; }
+    .calendar-day-large.future { color: var(--text-muted); }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl); }
+    .stat-box { background: var(--bg-primary); border-radius: var(--radius-lg); padding: var(--spacing-lg); text-align: center; box-shadow: var(--shadow-sm); }
+    .stat-box-value { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
+    .stat-box-label { font-size: 0.875rem; color: var(--text-muted); margin-top: var(--spacing-xs); }
+    @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="header"><div class="container"><div class="header-content"><div class="logo"><span class="logo-icon">🎯</span><span>English Mastery</span></div><div class="day-badge" id="dayBadge">Day 1 / 30</div></div></div></header>
+    <nav class="nav"><div class="container"><ul class="nav-list">
+      <li class="nav-item"><a href="../index.html" class="nav-link"><span>📊</span> 仪表盘</a></li>
+      <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>📖</span> 词汇学习</a></li>
+      <li class="nav-item"><a href="listening.html" class="nav-link"><span>👂</span> 听力训练</a></li>
+      <li class="nav-item"><a href="reading.html" class="nav-link"><span>📚</span> 阅读练习</a></li>
+      <li class="nav-item"><a href="writing.html" class="nav-link"><span>✍️</span> 写作练习</a></li>
+      <li class="nav-item"><a href="test.html" class="nav-link"><span>🎯</span> 测试评估</a></li>
+      <li class="nav-item"><a href="calendar.html" class="nav-link active"><span>📅</span> 打卡日历</a></li>
+    </ul></div></nav>
+    <main class="main-content">
+      <div class="container">
+        <h1 style="margin-bottom: var(--spacing-lg);">📅 打卡日历</h1>
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-box-value" id="totalDays">0</div><div class="stat-box-label">累计打卡</div></div>
+          <div class="stat-box"><div class="stat-box-value" id="currentStreak">0</div><div class="stat-box-label">连续打卡</div></div>
+          <div class="stat-box"><div class="stat-box-value" id="totalTime">0h</div><div class="stat-box-label">学习时长</div></div>
+          <div class="stat-box"><div class="stat-box-value" id="completionRate">0%</div><div class="stat-box-label">完成率</div></div>
+        </div>
+        <div class="calendar-large">
+          <div class="calendar-header-large">
+            <button class="calendar-nav-btn-large" onclick="prevMonth()">◀</button>
+            <div class="calendar-title-large" id="calendarTitle">2026年2月</div>
+            <button class="calendar-nav-btn-large" onclick="nextMonth()">▶</button>
+          </div>
+          <div class="calendar-weekdays-large"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+          <div class="calendar-days-large" id="calendarDays"></div>
+        </div>
+        <div class="card" style="margin-top: var(--spacing-xl);">
+          <div class="card-header"><h3 class="card-title"><span>📊</span> 图例说明</h3></div>
+          <div class="card-body" style="display: flex; gap: var(--spacing-xl); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm);"><div style="width: 24px; height: 24px; background: var(--success-color); border-radius: 4px;"></div><span>已打卡</span></div>
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm);"><div style="width: 24px; height: 24px; background: var(--primary-light); border-radius: 4px;"></div><span>今天</span></div>
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm);"><div style="width: 24px; height: 24px; background: var(--danger-color); opacity: 0.6; border-radius: 4px;"></div><span>未打卡</span></div>
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm);"><div style="width: 24px; height: 24px; background: var(--bg-tertiary); border-radius: 4px;"></div><span>未到</span></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="../js/storage.js"></script>
+  <script>
+    let currentYear, currentMonth;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date();
+      currentYear = today.getFullYear();
+      currentMonth = today.getMonth() + 1;
+      updateDayBadge();
+      updateStats();
+      renderCalendar();
+    });
+    
+    function updateDayBadge() {
+      const currentDay = Storage.getCurrentDay();
+      document.getElementById('dayBadge').textContent = `Day ${currentDay} / 30`;
+    }
+    
+    function updateStats() {
+      const checkinData = Storage.getCheckinData();
+      const study = Storage.getStudyData();
+      const totalDays = Object.keys(checkinData).filter(k => checkinData[k].completed).length;
+      const streak = Storage.calculateStreak();
+      
+      document.getElementById('totalDays').textContent = totalDays;
+      document.getElementById('currentStreak').textContent = streak;
+      document.getElementById('totalTime').textContent = Math.round((study.totalTime || 0) / 60) + 'h';
+      document.getElementById('completionRate').textContent = totalDays > 0 ? Math.round((totalDays / Storage.getCurrentDay()) * 100) + '%' : '0%';
+    }
+    
+    function renderCalendar() {
+      document.getElementById('calendarTitle').textContent = `${currentYear}年${currentMonth}月`;
+      
+      const firstDay = new Date(currentYear, currentMonth - 1, 1);
+      const lastDay = new Date(currentYear, currentMonth, 0);
+      const daysInMonth = lastDay.getDate();
+      const startWeekday = firstDay.getDay();
+      
+      const checkinData = Storage.getCheckinData();
+      const today = new Date();
+      const todayStr = Storage.getTodayString();
+      const study = Storage.getStudyData();
+      const startDate = new Date(study.startDate);
+      
+      let html = '';
+      
+      // 上月填充
+      const prevMonthLastDay = new Date(currentYear, currentMonth - 1, 0).getDate();
+      for (let i = startWeekday - 1; i >= 0; i--) {
+        html += `<div class="calendar-day-large future">${prevMonthLastDay - i}</div>`;
+      }
+      
+      // 当月天数
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dateObj = new Date(currentYear, currentMonth - 1, d);
+        
+        let className = 'calendar-day-large';
+        if (dateStr === todayStr) {
+          className += ' today';
+        } else if (dateObj > today) {
+          className += ' future';
+        } else if (checkinData[dateStr]?.completed) {
+          className += ' checked';
+        } else if (dateObj >= startDate && dateObj < today) {
+          className += ' missed';
+        }
+        
+        html += `<div class="${className}">${d}</div>`;
+      }
+      
+      // 下月填充
+      const remaining = 42 - (startWeekday + daysInMonth);
+      for (let i = 1; i <= remaining; i++) {
+        html += `<div class="calendar-day-large future">${i}</div>`;
+      }
+      
+      document.getElementById('calendarDays').innerHTML = html;
+    }
+    
+    function prevMonth() {
+      currentMonth--;
+      if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+      renderCalendar();
+    }
+    
+    function nextMonth() {
+      currentMonth++;
+      if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+      renderCalendar();
+    }
+  </script>
+</body>
+</html>

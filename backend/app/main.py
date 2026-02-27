@@ -6,11 +6,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import logging
+import os
 
 from app.config import settings
-from app.database import init_db, close_db
-from app.utils.redis_client import redis_client
-from app.api.v1 import api_router
 
 
 # 配置日志
@@ -21,6 +19,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# 全局状态
+db_connected = False
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -28,17 +30,24 @@ async def lifespan(app: FastAPI):
     启动时初始化数据库和 Redis 连接
     关闭时清理资源
     """
+    global db_connected
     logger.info("Starting application...")
+    logger.info(f"PORT: {os.environ.get('PORT', 'not set')}")
+    logger.info(f"DATABASE_URL exists: {bool(settings.DATABASE_URL)}")
     
-    # 初始化数据库表（Railway 部署时自动创建）
+    # 延迟导入，避免启动时立即连接数据库
     try:
+        from app.database import init_db, close_db
         await init_db()
-        logger.info("Database initialized")
+        db_connected = True
+        logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Database init failed: {e}")
+        db_connected = False
     
     # 连接 Redis（可选，Railway 免费层可以不用）
     try:
+        from app.utils.redis_client import redis_client
         await redis_client.connect()
         logger.info("Redis connected")
     except Exception as e:
@@ -49,10 +58,15 @@ async def lifespan(app: FastAPI):
     # 清理资源
     logger.info("Shutting down...")
     try:
+        from app.utils.redis_client import redis_client
         await redis_client.disconnect()
     except:
         pass
-    await close_db()
+    try:
+        from app.database import close_db
+        await close_db()
+    except:
+        pass
 
 
 # 创建 FastAPI 应用
@@ -91,17 +105,14 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-# 注册 API 路由
-app.include_router(api_router, prefix=settings.API_V1_PREFIX)
-
-
-# 健康检查
+# 健康检查 - 必须在路由注册之前定义
 @app.get("/health", tags=["系统"])
 async def health_check():
     """健康检查接口"""
     return {
         "status": "healthy",
-        "version": settings.APP_VERSION
+        "version": settings.APP_VERSION,
+        "database": "connected" if db_connected else "disconnected"
     }
 
 
@@ -112,8 +123,17 @@ async def root():
     return {
         "message": f"Welcome to {settings.APP_NAME}",
         "version": settings.APP_VERSION,
-        "docs": f"{settings.API_V1_PREFIX}/docs" if settings.DEBUG else None
+        "docs": "/docs"
     }
+
+
+# 延迟注册 API 路由（仅在数据库连接后才需要）
+try:
+    from app.api.v1 import api_router
+    app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+    logger.info("API routes registered")
+except Exception as e:
+    logger.error(f"Failed to register API routes: {e}")
 
 
 if __name__ == "__main__":
@@ -121,6 +141,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=int(os.environ.get("PORT", 8000)),
         reload=settings.DEBUG
     )

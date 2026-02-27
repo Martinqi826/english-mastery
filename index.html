@@ -5,25 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>English Mastery - 英语进阶大师</title>
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="page-wrapper">
-    <!-- Header -->
+    <!-- Header - Notion Style -->
     <header class="header">
       <div class="container">
         <div class="header-content">
           <div class="logo">
-            <span class="logo-icon">🎯</span>
+            <span class="logo-icon">📚</span>
             <span>English Mastery</span>
           </div>
           <div class="header-right">
             <div class="day-badge" id="dayBadge">Day 1 / 30</div>
             <div class="user-menu" id="userMenu">
               <button class="user-btn" onclick="toggleUserDropdown()">
-                <span class="user-avatar" id="userAvatar">👤</span>
+                <span class="user-avatar" id="userAvatar">U</span>
                 <span class="user-name" id="userName">用户</span>
-                <span class="dropdown-arrow">▼</span>
+                <span class="dropdown-arrow">▾</span>
               </button>
               <div class="user-dropdown" id="userDropdown">
                 <div class="dropdown-header">
@@ -31,7 +33,7 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <a href="#" class="dropdown-item" onclick="handleLogout()">
-                  <span>🚪</span> 退出登录
+                  <span>↗</span> 退出登录
                 </a>
               </div>
             </div>
@@ -40,43 +42,43 @@
       </div>
     </header>
 
-    <!-- Navigation -->
+    <!-- Navigation - Notion Style -->
     <nav class="nav">
       <div class="container">
         <ul class="nav-list">
           <li class="nav-item">
             <a href="index.html" class="nav-link active">
-              <span>📊</span> 仪表盘
+              <span>◉</span> 仪表盘
             </a>
           </li>
           <li class="nav-item">
             <a href="pages/vocabulary.html" class="nav-link">
-              <span>📖</span> 词汇学习
+              <span>◇</span> 词汇学习
             </a>
           </li>
           <li class="nav-item">
             <a href="pages/listening.html" class="nav-link">
-              <span>👂</span> 听力训练
+              <span>◇</span> 听力训练
             </a>
           </li>
           <li class="nav-item">
             <a href="pages/reading.html" class="nav-link">
-              <span>📚</span> 阅读练习
+              <span>◇</span> 阅读练习
             </a>
           </li>
           <li class="nav-item">
             <a href="pages/writing.html" class="nav-link">
-              <span>✍️</span> 写作练习
+              <span>◇</span> 写作练习
             </a>
           </li>
           <li class="nav-item">
             <a href="pages/test.html" class="nav-link">
-              <span>🎯</span> 测试评估
+              <span>◇</span> 测试评估
             </a>
           </li>
           <li class="nav-item">
             <a href="pages/calendar.html" class="nav-link">
-              <span>📅</span> 打卡日历
+              <span>◇</span> 打卡日历
             </a>
           </li>
         </ul>
@@ -93,7 +95,7 @@
             <div class="card animate-slide-up">
               <div class="card-header">
                 <h2 class="card-title">
-                  <span>📈</span> 总体进度
+                  <span>↗</span> 总体进度
                 </h2>
                 <span class="level-badge level-b2" id="levelBadge">B2 日常水平</span>
               </div>
@@ -119,22 +121,22 @@
               <div class="stat-card">
                 <div class="stat-icon">🔥</div>
                 <div class="stat-value" id="streakDays">0</div>
-                <div class="stat-label">连续打卡天数</div>
+                <div class="stat-label">连续打卡</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon">✅</div>
+                <div class="stat-icon">✓</div>
                 <div class="stat-value" id="todayTasks">0/5</div>
-                <div class="stat-label">今日完成任务</div>
+                <div class="stat-label">今日任务</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon">📚</div>
+                <div class="stat-icon">Aa</div>
                 <div class="stat-value" id="wordsLearned">0</div>
                 <div class="stat-label">已学词汇</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon">⏱️</div>
+                <div class="stat-icon">⏱</div>
                 <div class="stat-value" id="totalTime">0h</div>
-                <div class="stat-label">累计学习时长</div>
+                <div class="stat-label">累计时长</div>
               </div>
             </div>
 
@@ -142,7 +144,7 @@
             <div class="card tasks-section animate-slide-up">
               <div class="card-header">
                 <h2 class="card-title">
-                  <span>🎯</span> 今日任务
+                  <span>☐</span> 今日任务
                 </h2>
                 <span class="text-muted" id="taskProgress">0/5 完成</span>
               </div>
@@ -153,50 +155,50 @@
                       <span class="check-icon">✓</span>
                     </div>
                     <div class="task-content">
-                      <div class="task-title">📖 词汇学习 - 商务词汇 (30词)</div>
+                      <div class="task-title">词汇学习 · 商务词汇 30词</div>
                       <div class="task-meta">预计 15 分钟</div>
                     </div>
-                    <a href="pages/vocabulary.html" class="task-action" id="taskBtn-vocabulary">开始学习</a>
+                    <a href="pages/vocabulary.html" class="task-action" id="taskBtn-vocabulary">开始</a>
                   </li>
                   <li class="task-item" data-task="listening">
                     <div class="task-checkbox" onclick="toggleTask('listening')">
                       <span class="check-icon">✓</span>
                     </div>
                     <div class="task-content">
-                      <div class="task-title">👂 听力练习 - TED 演讲片段</div>
+                      <div class="task-title">听力练习 · TED 演讲片段</div>
                       <div class="task-meta">预计 15 分钟</div>
                     </div>
-                    <a href="pages/listening.html" class="task-action" id="taskBtn-listening">开始学习</a>
+                    <a href="pages/listening.html" class="task-action" id="taskBtn-listening">开始</a>
                   </li>
                   <li class="task-item" data-task="reading">
                     <div class="task-checkbox" onclick="toggleTask('reading')">
                       <span class="check-icon">✓</span>
                     </div>
                     <div class="task-content">
-                      <div class="task-title">📚 阅读练习 - 商务邮件范例</div>
+                      <div class="task-title">阅读练习 · 商务邮件范例</div>
                       <div class="task-meta">预计 15 分钟</div>
                     </div>
-                    <a href="pages/reading.html" class="task-action" id="taskBtn-reading">开始学习</a>
+                    <a href="pages/reading.html" class="task-action" id="taskBtn-reading">开始</a>
                   </li>
                   <li class="task-item" data-task="writing">
                     <div class="task-checkbox" onclick="toggleTask('writing')">
                       <span class="check-icon">✓</span>
                     </div>
                     <div class="task-content">
-                      <div class="task-title">✍️ 写作练习 - 自我介绍</div>
+                      <div class="task-title">写作练习 · 自我介绍</div>
                       <div class="task-meta">预计 20 分钟</div>
                     </div>
-                    <a href="pages/writing.html" class="task-action" id="taskBtn-writing">开始学习</a>
+                    <a href="pages/writing.html" class="task-action" id="taskBtn-writing">开始</a>
                   </li>
                   <li class="task-item" data-task="test">
                     <div class="task-checkbox" onclick="toggleTask('test')">
                       <span class="check-icon">✓</span>
                     </div>
                     <div class="task-content">
-                      <div class="task-title">🎯 每日测验 - Day 1 小测</div>
+                      <div class="task-title">每日测验 · Day 1 小测</div>
                       <div class="task-meta">预计 10 分钟</div>
                     </div>
-                    <a href="pages/test.html" class="task-action" id="taskBtn-test">开始测验</a>
+                    <a href="pages/test.html" class="task-action" id="taskBtn-test">开始</a>
                   </li>
                 </ul>
               </div>
@@ -205,7 +207,7 @@
             <!-- Check-in Button -->
             <div class="text-center animate-slide-up">
               <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()">
-                ✅ 完成今日打卡
+                完成今日打卡 →
               </button>
               <p class="text-muted mt-md" id="checkinHint">完成任意 3 项任务即可打卡</p>
             </div>
@@ -217,14 +219,14 @@
             <div class="card animate-slide-up community-stats-card">
               <div class="card-header">
                 <h3 class="card-title">
-                  <span>👥</span> 今日学习动态
+                  <span>◎</span> 今日学习动态
                 </h3>
                 <span class="live-dot"></span>
               </div>
               <div class="card-body">
                 <div class="community-stats">
                   <div class="community-stat-item">
-                    <div class="community-stat-icon completed">🎉</div>
+                    <div class="community-stat-icon completed">✓</div>
                     <div class="community-stat-info">
                       <div class="community-stat-value" id="completedCount">--</div>
                       <div class="community-stat-label">人完成学习</div>
@@ -232,7 +234,7 @@
                   </div>
                   <div class="community-stat-divider"></div>
                   <div class="community-stat-item">
-                    <div class="community-stat-icon learning">📖</div>
+                    <div class="community-stat-icon learning">→</div>
                     <div class="community-stat-info">
                       <div class="community-stat-value" id="learningCount">--</div>
                       <div class="community-stat-label">人参与学习</div>
@@ -248,7 +250,7 @@
                   </div>
                 </div>
                 <div class="community-update-time">
-                  <span>🔄</span> <span id="updateTime">更新中...</span>
+                  <span>↻</span> <span id="updateTime">更新中...</span>
                 </div>
               </div>
             </div>
@@ -257,7 +259,7 @@
             <div class="card animate-slide-up">
               <div class="card-header">
                 <h3 class="card-title">
-                  <span>📅</span> 打卡日历
+                  <span>▦</span> 打卡日历
                 </h3>
                 <span class="text-muted" id="currentMonth">2026年2月</span>
               </div>
@@ -281,7 +283,7 @@
             <div class="card animate-slide-up">
               <div class="card-header">
                 <h3 class="card-title">
-                  <span>📊</span> 能力雷达图
+                  <span>◈</span> 能力雷达图
                 </h3>
               </div>
               <div class="card-body">
@@ -299,7 +301,7 @@
                   <div class="streak-number" id="streakDisplay">0</div>
                   <div class="streak-label">天连续学习</div>
                 </div>
-                <hr style="border: none; border-top: 1px solid var(--border-color); margin: var(--spacing-md) 0;">
+                <hr style="border: none; border-top: 1px solid var(--notion-gray-light); margin: var(--spacing-md) 0;">
                 <div class="study-time">
                   <span class="time-value" id="todayTime">0</span>
                   <span class="time-label">分钟<br>今日学习</span>
@@ -312,8 +314,8 @@
     </main>
 
     <!-- Footer -->
-    <footer style="text-align: center; padding: var(--spacing-lg); color: var(--text-muted); font-size: 0.875rem;">
-      <p>English Mastery © 2026 | 30天达成母语水平</p>
+    <footer>
+      <p>English Mastery © 2026 · 30天达成母语水平</p>
     </footer>
   </div>
 

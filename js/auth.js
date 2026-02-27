@@ -1,43 +1,16 @@
 /**
  * English Mastery - 用户认证模块
+ * 改造版本：使用后端 API 进行认证
  */
 
 // ==================== 常量定义 ====================
-const AUTH_STORAGE_KEY = 'em_users';
 const CURRENT_USER_KEY = 'em_current_user';
 const REMEMBER_KEY = 'em_remember';
 
 // ==================== 用户数据管理 ====================
 
 /**
- * 获取所有注册用户
- * @returns {Array} 用户列表
- */
-function getUsers() {
-  const users = localStorage.getItem(AUTH_STORAGE_KEY);
-  return users ? JSON.parse(users) : [];
-}
-
-/**
- * 保存用户列表
- * @param {Array} users - 用户列表
- */
-function saveUsers(users) {
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(users));
-}
-
-/**
- * 根据邮箱查找用户
- * @param {string} email - 邮箱地址
- * @returns {Object|null} 用户对象或null
- */
-function findUserByEmail(email) {
-  const users = getUsers();
-  return users.find(user => user.email.toLowerCase() === email.toLowerCase());
-}
-
-/**
- * 获取当前登录用户
+ * 获取当前登录用户（从本地缓存）
  * @returns {Object|null} 当前用户或null
  */
 function getCurrentUser() {
@@ -46,16 +19,17 @@ function getCurrentUser() {
 }
 
 /**
- * 设置当前登录用户
+ * 设置当前登录用户（缓存到本地）
  * @param {Object} user - 用户对象
  */
 function setCurrentUser(user) {
-  // 不保存密码到当前用户状态
   const safeUser = {
     id: user.id,
     name: user.name,
     email: user.email,
-    createdAt: user.createdAt,
+    phone: user.phone,
+    avatar: user.avatar,
+    membership_level: user.membership_level || 'free',
     lastLogin: new Date().toISOString()
   };
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
@@ -67,6 +41,10 @@ function setCurrentUser(user) {
 function clearCurrentUser() {
   localStorage.removeItem(CURRENT_USER_KEY);
   localStorage.removeItem(REMEMBER_KEY);
+  // 同时清除 API Token
+  if (window.API) {
+    API.clearTokens();
+  }
 }
 
 /**
@@ -74,35 +52,12 @@ function clearCurrentUser() {
  * @returns {boolean}
  */
 function isLoggedIn() {
-  return getCurrentUser() !== null;
-}
-
-// ==================== 密码处理 ====================
-
-/**
- * 简单的密码哈希（实际生产环境应使用bcrypt等）
- * @param {string} password - 原始密码
- * @returns {string} 哈希后的密码
- */
-function hashPassword(password) {
-  // 简单的哈希实现，实际生产环境应该使用更安全的方法
-  let hash = 0;
-  for (let i = 0; i < password.length; i++) {
-    const char = password.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
+  // 优先检查 API Token
+  if (window.API && API.isLoggedIn()) {
+    return true;
   }
-  return 'hash_' + Math.abs(hash).toString(36) + '_' + password.length;
-}
-
-/**
- * 验证密码
- * @param {string} password - 输入的密码
- * @param {string} hashedPassword - 存储的哈希密码
- * @returns {boolean}
- */
-function verifyPassword(password, hashedPassword) {
-  return hashPassword(password) === hashedPassword;
+  // 兼容旧版本：检查本地用户数据
+  return getCurrentUser() !== null;
 }
 
 // ==================== 表单验证 ====================
@@ -118,6 +73,16 @@ function isValidEmail(email) {
 }
 
 /**
+ * 验证手机号格式
+ * @param {string} phone - 手机号
+ * @returns {boolean}
+ */
+function isValidPhone(phone) {
+  const phoneRegex = /^1[3-9]\d{9}$/;
+  return phoneRegex.test(phone);
+}
+
+/**
  * 验证密码强度
  * @param {string} password - 密码
  * @returns {Object} {valid: boolean, strength: string, message: string}
@@ -129,20 +94,11 @@ function validatePassword(password) {
   
   let strength = 0;
   
-  // 长度检查
   if (password.length >= 8) strength++;
   if (password.length >= 12) strength++;
-  
-  // 包含数字
   if (/\d/.test(password)) strength++;
-  
-  // 包含小写字母
   if (/[a-z]/.test(password)) strength++;
-  
-  // 包含大写字母
   if (/[A-Z]/.test(password)) strength++;
-  
-  // 包含特殊字符
   if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
   
   if (strength <= 2) {
@@ -161,12 +117,10 @@ function validatePassword(password) {
  * @param {string} tab - 'login' 或 'register'
  */
 function switchTab(tab) {
-  // 更新标签状态
   document.querySelectorAll('.auth-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.tab === tab);
   });
   
-  // 切换表单显示
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
   
@@ -205,7 +159,6 @@ function checkPasswordStrength(password) {
   const strengthText = document.getElementById('strengthText');
   
   if (strengthFill && strengthText) {
-    // 移除所有强度类
     strengthFill.classList.remove('weak', 'medium', 'strong');
     strengthText.classList.remove('weak', 'medium', 'strong');
     
@@ -236,13 +189,30 @@ function showToast(message, type = 'info') {
   }, 3000);
 }
 
+/**
+ * 显示/隐藏加载状态
+ * @param {boolean} show - 是否显示
+ */
+function showLoading(show) {
+  const buttons = document.querySelectorAll('button[type="submit"]');
+  buttons.forEach(btn => {
+    btn.disabled = show;
+    if (show) {
+      btn.dataset.originalText = btn.textContent;
+      btn.textContent = '处理中...';
+    } else if (btn.dataset.originalText) {
+      btn.textContent = btn.dataset.originalText;
+    }
+  });
+}
+
 // ==================== 认证操作 ====================
 
 /**
  * 处理注册
  * @param {Event} event - 表单提交事件
  */
-function handleRegister(event) {
+async function handleRegister(event) {
   event.preventDefault();
   
   const name = document.getElementById('registerName').value.trim();
@@ -277,32 +247,63 @@ function handleRegister(event) {
     return;
   }
   
-  // 检查邮箱是否已注册
-  if (findUserByEmail(email)) {
+  showLoading(true);
+  
+  try {
+    // 调用后端 API 注册
+    if (window.API) {
+      const result = await API.auth.register({
+        name,
+        email,
+        password
+      });
+      
+      // 保存用户信息到本地缓存
+      setCurrentUser(result.user);
+      
+      showToast('🎉 注册成功！正在跳转...', 'success');
+      
+      setTimeout(() => {
+        window.location.href = '../index.html';
+      }, 1500);
+    } else {
+      // 降级到本地存储（兼容模式）
+      handleRegisterLocal(name, email, password);
+    }
+  } catch (error) {
+    console.error('Register failed:', error);
+    showToast(error.message || '注册失败，请稍后重试', 'error');
+  } finally {
+    showLoading(false);
+  }
+}
+
+/**
+ * 本地注册（兼容模式，当后端不可用时）
+ */
+function handleRegisterLocal(name, email, password) {
+  const AUTH_STORAGE_KEY = 'em_users';
+  const users = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || '[]');
+  
+  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
     showToast('该邮箱已被注册', 'error');
     return;
   }
   
-  // 创建新用户
   const newUser = {
     id: 'user_' + Date.now().toString(36),
-    name: name,
-    email: email,
-    password: hashPassword(password),
+    name,
+    email,
+    password: 'local_' + btoa(password),
     createdAt: new Date().toISOString()
   };
   
-  // 保存用户
-  const users = getUsers();
   users.push(newUser);
-  saveUsers(users);
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(users));
   
-  // 自动登录
   setCurrentUser(newUser);
-  
   showToast('🎉 注册成功！正在跳转...', 'success');
   
-  // 跳转到首页
   setTimeout(() => {
     window.location.href = '../index.html';
   }, 1500);
@@ -312,12 +313,12 @@ function handleRegister(event) {
  * 处理登录
  * @param {Event} event - 表单提交事件
  */
-function handleLogin(event) {
+async function handleLogin(event) {
   event.preventDefault();
   
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
-  const rememberMe = document.getElementById('rememberMe').checked;
+  const rememberMe = document.getElementById('rememberMe')?.checked;
   
   // 验证
   if (!isValidEmail(email)) {
@@ -330,21 +331,56 @@ function handleLogin(event) {
     return;
   }
   
-  // 查找用户
-  const user = findUserByEmail(email);
+  showLoading(true);
+  
+  try {
+    // 调用后端 API 登录
+    if (window.API) {
+      const result = await API.auth.login(email, password);
+      
+      // 保存用户信息到本地缓存
+      setCurrentUser(result.user);
+      
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_KEY, 'true');
+      }
+      
+      showToast('✅ 登录成功！正在跳转...', 'success');
+      
+      setTimeout(() => {
+        window.location.href = '../index.html';
+      }, 1500);
+    } else {
+      // 降级到本地存储（兼容模式）
+      handleLoginLocal(email, password, rememberMe);
+    }
+  } catch (error) {
+    console.error('Login failed:', error);
+    showToast(error.message || '登录失败，请检查邮箱和密码', 'error');
+  } finally {
+    showLoading(false);
+  }
+}
+
+/**
+ * 本地登录（兼容模式）
+ */
+function handleLoginLocal(email, password, rememberMe) {
+  const AUTH_STORAGE_KEY = 'em_users';
+  const users = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || '[]');
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   
   if (!user) {
     showToast('该邮箱未注册', 'error');
     return;
   }
   
-  // 验证密码
-  if (!verifyPassword(password, user.password)) {
+  const expectedPassword = 'local_' + btoa(password);
+  if (user.password !== expectedPassword) {
     showToast('密码错误', 'error');
     return;
   }
   
-  // 登录成功
   setCurrentUser(user);
   
   if (rememberMe) {
@@ -353,7 +389,6 @@ function handleLogin(event) {
   
   showToast('✅ 登录成功！正在跳转...', 'success');
   
-  // 跳转到首页
   setTimeout(() => {
     window.location.href = '../index.html';
   }, 1500);
@@ -362,16 +397,27 @@ function handleLogin(event) {
 /**
  * 退出登录
  */
-function logout() {
+async function logout() {
+  try {
+    if (window.API && API.isLoggedIn()) {
+      await API.auth.logout();
+    }
+  } catch (error) {
+    console.log('Logout API failed:', error);
+  }
+  
   clearCurrentUser();
-  window.location.href = 'pages/auth.html';
+  
+  const loginPath = window.location.pathname.includes('/pages/') 
+    ? 'auth.html' 
+    : 'pages/auth.html';
+  window.location.href = loginPath;
 }
 
 // ==================== 页面保护 ====================
 
 /**
  * 检查登录状态，未登录则跳转到登录页
- * 在需要保护的页面调用此函数
  */
 function requireAuth() {
   if (!isLoggedIn()) {
@@ -383,7 +429,6 @@ function requireAuth() {
 
 /**
  * 如果已登录，则跳转到首页
- * 在登录页调用此函数
  */
 function redirectIfLoggedIn() {
   if (isLoggedIn()) {
@@ -393,11 +438,29 @@ function redirectIfLoggedIn() {
   }
 }
 
+/**
+ * 刷新用户信息（从后端获取最新数据）
+ */
+async function refreshUserInfo() {
+  if (window.API && API.isLoggedIn()) {
+    try {
+      const userData = await API.auth.getCurrentUser();
+      setCurrentUser(userData);
+      return userData;
+    } catch (error) {
+      console.error('Failed to refresh user info:', error);
+      // Token 可能已失效，清除登录状态
+      if (error.code === 2001 || error.code === 2002) {
+        clearCurrentUser();
+      }
+    }
+  }
+  return getCurrentUser();
+}
+
 // ==================== 初始化 ====================
 
-// 页面加载时检查是否需要重定向
 document.addEventListener('DOMContentLoaded', function() {
-  // 如果在登录页且已登录，跳转到首页
   if (window.location.pathname.includes('auth.html')) {
     redirectIfLoggedIn();
   }
@@ -407,6 +470,9 @@ document.addEventListener('DOMContentLoaded', function() {
 window.Auth = {
   isLoggedIn,
   getCurrentUser,
+  setCurrentUser,
+  clearCurrentUser,
   logout,
-  requireAuth
+  requireAuth,
+  refreshUserInfo
 };

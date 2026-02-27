@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会员中心 - English Mastery</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* 会员页面特定样式 */
+    .membership-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .membership-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .membership-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+
+    .membership-header p {
+      font-size: 1.1rem;
+      color: #666;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* 当前会员状态卡片 */
+    .current-membership {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .current-membership.free {
+      background: linear-gradient(135deg, #868686 0%, #4a4a4a 100%);
+    }
+
+    .current-membership.basic {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .current-membership.premium {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .membership-info h2 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .membership-info p {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+
+    .membership-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    /* 套餐选择 */
+    .plans-section h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 40px;
+      color: #1a1a1a;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .plan-card {
+      background: white;
+      border: 2px solid #e5e5e5;
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .plan-card:hover {
+      border-color: #1a1a1a;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+    }
+
+    .plan-card.popular {
+      border-color: #1a1a1a;
+      background: #fafafa;
+    }
+
+    .plan-card.popular::before {
+      content: '最受欢迎';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .plan-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .plan-price {
+      margin: 24px 0;
+    }
+
+    .plan-price .amount {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .plan-price .currency {
+      font-size: 1.2rem;
+      vertical-align: top;
+    }
+
+    .plan-price .period {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .plan-price .original {
+      text-decoration: line-through;
+      color: #999;
+      font-size: 1rem;
+      margin-top: 4px;
+    }
+
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0;
+      text-align: left;
+    }
+
+    .plan-features li {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      color: #444;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plan-features li:last-child {
+      border-bottom: none;
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: #22c55e;
+      font-weight: bold;
+    }
+
+    .plan-btn {
+      width: 100%;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .plan-btn.primary {
+      background: #1a1a1a;
+      color: white;
+    }
+
+    .plan-btn.primary:hover {
+      background: #333;
+    }
+
+    .plan-btn.secondary {
+      background: #f5f5f5;
+      color: #1a1a1a;
+    }
+
+    .plan-btn.secondary:hover {
+      background: #e5e5e5;
+    }
+
+    .plan-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* FAQ */
+    .faq-section {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-section h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 40px;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid #e5e5e5;
+      padding: 20px 0;
+    }
+
+    .faq-question {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #1a1a1a;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-answer {
+      color: #666;
+      margin-top: 12px;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* 支付弹窗 */
+    .payment-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .payment-modal.show {
+      display: flex;
+    }
+
+    .payment-content {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .payment-content h3 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .payment-methods {
+      display: flex;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .payment-method {
+      flex: 1;
+      padding: 16px;
+      border: 2px solid #e5e5e5;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .payment-method:hover {
+      border-color: #1a1a1a;
+    }
+
+    .payment-method.selected {
+      border-color: #1a1a1a;
+      background: #fafafa;
+    }
+
+    .payment-method img {
+      height: 32px;
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .current-membership {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .membership-header h1 {
+        font-size: 2rem;
+      }
+
+      .plans-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon">🎯</span>
+        <span class="logo-text">English Mastery</span>
+      </a>
+      <div class="nav-links">
+        <a href="../index.html">首页</a>
+        <a href="vocabulary.html">词汇</a>
+        <a href="calendar.html">打卡</a>
+        <a href="membership.html" class="active">会员</a>
+      </div>
+      <div class="user-menu" id="userMenu">
+        <button class="user-btn" onclick="toggleUserDropdown()">
+          <span class="user-avatar" id="userAvatar">👤</span>
+          <span class="user-name" id="userName">用户</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="#" onclick="logout()">退出登录</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="membership-container">
+    <!-- 页面标题 -->
+    <div class="membership-header">
+      <h1>升级会员，解锁全部功能</h1>
+      <p>选择适合您的学习计划，30天见证英语水平质的飞跃</p>
+    </div>
+
+    <!-- 当前会员状态 -->
+    <div class="current-membership free" id="currentMembership">
+      <div class="membership-info">
+        <h2>当前：免费用户</h2>
+        <p id="membershipDesc">升级会员解锁全部学习内容</p>
+      </div>
+      <div class="membership-badge" id="membershipBadge">
+        FREE
+      </div>
+    </div>
+
+    <!-- 套餐选择 -->
+    <section class="plans-section">
+      <h2>选择您的学习计划</h2>
+      <div class="plans-grid">
+        <!-- 基础月付 -->
+        <div class="plan-card">
+          <div class="plan-name">基础会员</div>
+          <div class="plan-price">
+            <span class="currency">¥</span>
+            <span class="amount">29</span>
+            <span class="period">/月</span>
+            <div class="original">原价 ¥39/月</div>
+          </div>
+          <ul class="plan-features">
+            <li>全部 900+ 商务词汇</li>
+            <li>全部听力训练课程</li>
+            <li>全部阅读练习材料</li>
+            <li>全部写作练习模板</li>
+            <li>学习进度云同步</li>
+          </ul>
+          <button class="plan-btn secondary" onclick="selectPlan('basic_monthly')">
+            立即开通
+          </button>
+        </div>
+
+        <!-- 基础年付 -->
+        <div class="plan-card popular">
+          <div class="plan-name">基础会员 · 年付</div>
+          <div class="plan-price">
+            <span class="currency">¥</span>
+            <span class="amount">199</span>
+            <span class="period">/年</span>
+            <div class="original">原价 ¥468/年，省 269 元</div>
+          </div>
+          <ul class="plan-features">
+            <li>全部 900+ 商务词汇</li>
+            <li>全部听力训练课程</li>
+            <li>全部阅读练习材料</li>
+            <li>全部写作练习模板</li>
+            <li>学习进度云同步</li>
+            <li>优先客服支持</li>
+          </ul>
+          <button class="plan-btn primary" onclick="selectPlan('basic_yearly')">
+            立即开通
+          </button>
+        </div>
+
+        <!-- 高级月付 -->
+        <div class="plan-card">
+          <div class="plan-name">高级会员</div>
+          <div class="plan-price">
+            <span class="currency">¥</span>
+            <span class="amount">99</span>
+            <span class="period">/月</span>
+            <div class="original">原价 ¥149/月</div>
+          </div>
+          <ul class="plan-features">
+            <li>基础会员全部功能</li>
+            <li>AI 智能写作批改</li>
+            <li>个性化学习计划</li>
+            <li>1对1 学习答疑</li>
+            <li>专属学习社群</li>
+          </ul>
+          <button class="plan-btn secondary" onclick="selectPlan('premium_monthly')">
+            立即开通
+          </button>
+        </div>
+
+        <!-- 高级年付 -->
+        <div class="plan-card">
+          <div class="plan-name">高级会员 · 年付</div>
+          <div class="plan-price">
+            <span class="currency">¥</span>
+            <span class="amount">799</span>
+            <span class="period">/年</span>
+            <div class="original">原价 ¥1788/年，省 989 元</div>
+          </div>
+          <ul class="plan-features">
+            <li>基础会员全部功能</li>
+            <li>AI 智能写作批改</li>
+            <li>个性化学习计划</li>
+            <li>1对1 学习答疑</li>
+            <li>专属学习社群</li>
+            <li>线下活动优先参与</li>
+          </ul>
+          <button class="plan-btn secondary" onclick="selectPlan('premium_yearly')">
+            立即开通
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+      <h2>常见问题</h2>
+      
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          <span>会员可以退款吗？</span>
+          <span>+</span>
+        </div>
+        <div class="faq-answer">
+          支持 7 天无理由退款。如果您在购买后 7 天内对服务不满意，可以申请全额退款。
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          <span>会员到期后数据会丢失吗？</span>
+          <span>+</span>
+        </div>
+        <div class="faq-answer">
+          不会。您的学习记录和进度数据会永久保存。会员到期后只是无法访问会员专属内容，但基础功能和历史数据都会保留。
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          <span>如何升级或降级会员？</span>
+          <span>+</span>
+        </div>
+        <div class="faq-answer">
+          您可以随时升级会员等级，升级后立即生效。降级需要在当前会员周期结束后自动变更，或联系客服处理。
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          <span>支持哪些支付方式？</span>
+          <span>+</span>
+        </div>
+        <div class="faq-answer">
+          目前支持微信支付和支付宝两种支付方式，您可以根据个人习惯选择。
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 支付弹窗 -->
+  <div class="payment-modal" id="paymentModal">
+    <div class="payment-content">
+      <h3>选择支付方式</h3>
+      <p id="selectedPlanInfo">基础会员 · 月付 ¥29</p>
+      
+      <div class="payment-methods">
+        <div class="payment-method selected" data-method="wechat" onclick="selectPayMethod('wechat')">
+          <div>💚 微信支付</div>
+        </div>
+        <div class="payment-method" data-method="alipay" onclick="selectPayMethod('alipay')">
+          <div>💙 支付宝</div>
+        </div>
+      </div>
+      
+      <button class="plan-btn primary" onclick="confirmPayment()" id="payBtn">
+        确认支付
+      </button>
+      <button class="plan-btn secondary" onclick="closePaymentModal()" style="margin-top: 12px;">
+        取消
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // 产品信息
+    const PRODUCTS = {
+      basic_monthly: { name: '基础会员 · 月付', price: 29 },
+      basic_yearly: { name: '基础会员 · 年付', price: 199 },
+      premium_monthly: { name: '高级会员 · 月付', price: 99 },
+      premium_yearly: { name: '高级会员 · 年付', price: 799 }
+    };
+
+    let selectedPlan = null;
+    let selectedPayMethod = 'wechat';
+
+    // 页面初始化
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 检查登录状态
+      if (window.Auth && !Auth.isLoggedIn()) {
+        window.location.href = 'auth.html';
+        return;
+      }
+
+      // 加载用户信息
+      loadUserInfo();
+
+      // 加载会员状态
+      await loadMembershipStatus();
+    });
+
+    // 加载用户信息
+    function loadUserInfo() {
+      const user = Auth.getCurrentUser();
+      if (user) {
+        document.getElementById('userName').textContent = user.name || '用户';
+        document.getElementById('userAvatar').textContent = user.avatar || '👤';
+      }
+    }
+
+    // 加载会员状态
+    async function loadMembershipStatus() {
+      if (!window.API || !API.isLoggedIn()) return;
+
+      try {
+        const membership = await API.user.getMembership();
+        updateMembershipUI(membership);
+      } catch (error) {
+        console.error('Failed to load membership:', error);
+      }
+    }
+
+    // 更新会员状态 UI
+    function updateMembershipUI(membership) {
+      const container = document.getElementById('currentMembership');
+      const badge = document.getElementById('membershipBadge');
+      const desc = document.getElementById('membershipDesc');
+      const info = container.querySelector('.membership-info h2');
+
+      container.classList.remove('free', 'basic', 'premium');
+
+      if (membership.level === 'premium') {
+        container.classList.add('premium');
+        info.textContent = '当前：高级会员';
+        badge.textContent = 'PREMIUM';
+        if (membership.end_date) {
+          desc.textContent = `有效期至 ${new Date(membership.end_date).toLocaleDateString()}`;
+        }
+      } else if (membership.level === 'basic') {
+        container.classList.add('basic');
+        info.textContent = '当前：基础会员';
+        badge.textContent = 'BASIC';
+        if (membership.end_date) {
+          desc.textContent = `有效期至 ${new Date(membership.end_date).toLocaleDateString()}`;
+        }
+      } else {
+        container.classList.add('free');
+        info.textContent = '当前：免费用户';
+        badge.textContent = 'FREE';
+        desc.textContent = '升级会员解锁全部学习内容';
+      }
+    }
+
+    // 选择套餐
+    function selectPlan(planId) {
+      if (!Auth.isLoggedIn()) {
+        showToast('请先登录', 'error');
+        setTimeout(() => {
+          window.location.href = 'auth.html';
+        }, 1000);
+        return;
+      }
+
+      selectedPlan = planId;
+      const product = PRODUCTS[planId];
+      document.getElementById('selectedPlanInfo').textContent = 
+        `${product.name} ¥${product.price}`;
+      document.getElementById('paymentModal').classList.add('show');
+    }
+
+    // 选择支付方式
+    function selectPayMethod(method) {
+      selectedPayMethod = method;
+      document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.toggle('selected', el.dataset.method === method);
+      });
+    }
+
+    // 关闭支付弹窗
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.remove('show');
+    }
+
+    // 确认支付
+    async function confirmPayment() {
+      if (!selectedPlan) return;
+
+      const payBtn = document.getElementById('payBtn');
+      payBtn.disabled = true;
+      payBtn.textContent = '处理中...';
+
+      try {
+        const result = await API.payment.createOrder(selectedPlan, selectedPayMethod);
+        
+        if (result.pay_url) {
+          // 跳转到支付页面
+          window.open(result.pay_url, '_blank');
+          showToast('请在新窗口完成支付', 'info');
+        } else if (result.qr_code) {
+          // 显示支付二维码
+          showToast('请使用手机扫码支付', 'info');
+        }
+
+        // 轮询检查支付结果
+        pollPaymentStatus(result.order_no);
+
+      } catch (error) {
+        showToast(error.message || '创建订单失败', 'error');
+      } finally {
+        payBtn.disabled = false;
+        payBtn.textContent = '确认支付';
+      }
+    }
+
+    // 轮询支付状态
+    async function pollPaymentStatus(orderNo) {
+      let attempts = 0;
+      const maxAttempts = 60; // 最多等待 5 分钟
+
+      const checkStatus = async () => {
+        try {
+          const order = await API.payment.getOrderDetail(orderNo);
+          
+          if (order.status === 'paid') {
+            showToast('🎉 支付成功！', 'success');
+            closePaymentModal();
+            await loadMembershipStatus();
+            return;
+          }
+
+          if (order.status === 'cancelled' || order.status === 'failed') {
+            showToast('支付已取消', 'error');
+            closePaymentModal();
+            return;
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(checkStatus, 5000);
+          }
+        } catch (error) {
+          console.error('Check payment status failed:', error);
+        }
+      };
+
+      checkStatus();
+    }
+
+    // 切换 FAQ
+    function toggleFaq(element) {
+      element.classList.toggle('open');
+      const icon = element.querySelector('.faq-question span:last-child');
+      icon.textContent = element.classList.contains('open') ? '−' : '+';
+    }
+
+    // 用户下拉菜单
+    function toggleUserDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    // Toast 提示
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // 关闭下拉菜单
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.user-menu')) {
+        document.getElementById('userDropdown').classList.remove('show');
+      }
+    });
+  </script>
+</body>
+</html>

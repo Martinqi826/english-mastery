@@ -578,64 +578,125 @@
     }
     
     // ========== 语音朗读功能 ==========
-    let speechSynthesis = window.speechSynthesis;
-    let voices = [];
-    let englishVoice = null;
-    
-    // 加载语音列表
-    function loadVoices() {
-      voices = speechSynthesis.getVoices();
-      // 优先选择英语语音
-      englishVoice = voices.find(v => v.lang.includes('en-US') && v.name.includes('Google')) ||
-                     voices.find(v => v.lang.includes('en-US')) ||
-                     voices.find(v => v.lang.includes('en-GB')) ||
-                     voices.find(v => v.lang.includes('en')) ||
-                     voices[0];
-    }
-    
-    // 语音列表加载后更新
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
-    loadVoices();
+    let currentAudio = null;
     
     // 播放当前单词发音
     function speakWord() {
       if (currentIndex >= todayVocabulary.length) return;
       const word = todayVocabulary[currentIndex].word;
-      speak(word);
+      speak(word, document.getElementById('speakBtn'));
     }
     
     // 播放指定索引的单词
     function speakWordByIndex(index) {
       if (index >= 0 && index < todayVocabulary.length) {
         const word = todayVocabulary[index].word;
-        speak(word);
+        // 找到对应的按钮添加动画
+        const buttons = document.querySelectorAll('.speak-btn-mini');
+        speak(word, buttons[index]);
       }
     }
     
-    // 核心发音函数
-    function speak(text) {
-      // 停止之前的语音
+    // 核心发音函数 - 使用在线词典发音
+    function speak(text, btnElement) {
+      // 停止之前的音频
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      
+      // 移除所有按钮的 speaking 状态
+      document.querySelectorAll('.speak-btn, .speak-btn-mini').forEach(btn => {
+        btn.classList.remove('speaking');
+      });
+      
+      // 添加动画效果
+      if (btnElement) {
+        btnElement.classList.add('speaking');
+      }
+      
+      // 使用有道词典的发音 API（美式发音）
+      const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&type=2`;
+      
+      currentAudio = new Audio(audioUrl);
+      currentAudio.volume = 1;
+      
+      currentAudio.onended = () => {
+        if (btnElement) {
+          btnElement.classList.remove('speaking');
+        }
+        currentAudio = null;
+      };
+      
+      currentAudio.onerror = () => {
+        // 如果有道词典失败，尝试使用 Google Translate TTS 作为备选
+        console.log('有道词典发音加载失败，尝试备选方案...');
+        tryGoogleTTS(text, btnElement);
+      };
+      
+      currentAudio.play().catch(err => {
+        console.log('播放失败:', err);
+        // 尝试备选方案
+        tryGoogleTTS(text, btnElement);
+      });
+    }
+    
+    // Google Translate TTS 作为备选
+    function tryGoogleTTS(text, btnElement) {
+      const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`;
+      
+      currentAudio = new Audio(googleUrl);
+      currentAudio.volume = 1;
+      
+      currentAudio.onended = () => {
+        if (btnElement) {
+          btnElement.classList.remove('speaking');
+        }
+        currentAudio = null;
+      };
+      
+      currentAudio.onerror = () => {
+        // 如果 Google 也失败，回退到 Web Speech API
+        console.log('在线发音失败，使用本地语音合成');
+        speakWithWebSpeech(text, btnElement);
+      };
+      
+      currentAudio.play().catch(() => {
+        speakWithWebSpeech(text, btnElement);
+      });
+    }
+    
+    // Web Speech API 作为最后备选
+    function speakWithWebSpeech(text, btnElement) {
+      if (!window.speechSynthesis) {
+        if (btnElement) btnElement.classList.remove('speaking');
+        return;
+      }
+      
       speechSynthesis.cancel();
       
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
-      utterance.rate = 0.85; // 稍慢一点，更清晰
+      utterance.rate = 0.9;
       utterance.pitch = 1;
       utterance.volume = 1;
       
+      // 获取英语语音
+      const voices = speechSynthesis.getVoices();
+      const englishVoice = voices.find(v => v.lang.includes('en-US')) ||
+                          voices.find(v => v.lang.includes('en-GB')) ||
+                          voices.find(v => v.lang.includes('en'));
       if (englishVoice) {
         utterance.voice = englishVoice;
       }
       
-      // 添加动画效果
-      const speakBtn = document.getElementById('speakBtn');
-      if (speakBtn) {
-        speakBtn.classList.add('speaking');
-        utterance.onend = () => speakBtn.classList.remove('speaking');
-        utterance.onerror = () => speakBtn.classList.remove('speaking');
-      }
+      utterance.onend = () => {
+        if (btnElement) btnElement.classList.remove('speaking');
+      };
+      
+      utterance.onerror = () => {
+        if (btnElement) btnElement.classList.remove('speaking');
+      };
       
       speechSynthesis.speak(utterance);
     }

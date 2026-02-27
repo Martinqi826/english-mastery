@@ -1,6 +1,6 @@
 /**
  * English Mastery - 数据存储模块
- * 使用 LocalStorage 进行数据持久化
+ * 改造版本：支持云端同步 + 本地缓存
  */
 
 const Storage = {
@@ -13,14 +13,18 @@ const Storage = {
     CHECKIN: 'em_checkin',
     STUDY: 'em_study',
     ASSESSMENT: 'em_assessment',
-    SETTINGS: 'em_settings'
+    SETTINGS: 'em_settings',
+    SYNC_TIMESTAMP: 'em_sync_timestamp'
   },
 
+  // 同步状态
+  _syncInProgress: false,
+  _syncQueue: [],
+
+  // ==================== 基础存储操作 ====================
+
   /**
-   * 获取数据
-   * @param {string} key - 存储键名
-   * @param {any} defaultValue - 默认值
-   * @returns {any}
+   * 获取本地数据
    */
   get(key, defaultValue = null) {
     try {
@@ -33,9 +37,7 @@ const Storage = {
   },
 
   /**
-   * 设置数据
-   * @param {string} key - 存储键名
-   * @param {any} value - 数据值
+   * 设置本地数据
    */
   set(key, value) {
     try {
@@ -46,8 +48,7 @@ const Storage = {
   },
 
   /**
-   * 删除数据
-   * @param {string} key - 存储键名
+   * 删除本地数据
    */
   remove(key) {
     try {
@@ -66,48 +67,156 @@ const Storage = {
     });
   },
 
+  // ==================== 云端同步 ====================
+
+  /**
+   * 检查是否可以使用云端同步
+   */
+  canUseCloudSync() {
+    return window.API && API.isLoggedIn();
+  },
+
+  /**
+   * 从云端获取学习进度
+   */
+  async fetchProgressFromCloud() {
+    if (!this.canUseCloudSync()) return null;
+
+    try {
+      const cloudProgress = await API.learning.getProgress();
+      
+      // 缓存到本地
+      this.set(this.KEYS.PROGRESS, {
+        vocabulary: cloudProgress.vocabulary,
+        listening: cloudProgress.listening,
+        reading: cloudProgress.reading,
+        writing: cloudProgress.writing,
+        speaking: cloudProgress.speaking,
+        overall: cloudProgress.overall
+      });
+
+      this.set(this.KEYS.STUDY, {
+        currentDay: cloudProgress.current_day,
+        startDate: cloudProgress.start_date,
+        streak: cloudProgress.streak_days,
+        totalTime: cloudProgress.total_study_time,
+        wordsLearned: cloudProgress.words_learned,
+        todayTasks: []
+      });
+
+      this.set(this.KEYS.SYNC_TIMESTAMP, Date.now());
+
+      return cloudProgress;
+    } catch (error) {
+      console.error('Failed to fetch progress from cloud:', error);
+      return null;
+    }
+  },
+
+  /**
+   * 同步进度到云端
+   */
+  async syncProgressToCloud(progressData) {
+    if (!this.canUseCloudSync()) return false;
+
+    try {
+      await API.learning.updateProgress(progressData);
+      this.set(this.KEYS.SYNC_TIMESTAMP, Date.now());
+      return true;
+    } catch (error) {
+      console.error('Failed to sync progress to cloud:', error);
+      // 加入同步队列，稍后重试
+      this._syncQueue.push({ type: 'progress', data: progressData });
+      return false;
+    }
+  },
+
+  /**
+   * 处理同步队列
+   */
+  async processSyncQueue() {
+    if (this._syncInProgress || this._syncQueue.length === 0) return;
+
+    this._syncInProgress = true;
+
+    while (this._syncQueue.length > 0) {
+      const item = this._syncQueue.shift();
+      try {
+        if (item.type === 'progress') {
+          await API.learning.updateProgress(item.data);
+        } else if (item.type === 'checkin') {
+          await API.learning.checkin(item.data.tasks, item.data.studyTime);
+        }
+      } catch (error) {
+        console.error('Sync queue item failed:', error);
+        // 重新加入队列
+        this._syncQueue.unshift(item);
+        break;
+      }
+    }
+
+    this._syncInProgress = false;
+  },
+
   // ==================== 进度数据 ====================
 
   /**
-   * 获取进度数据
-   * @returns {Object}
+   * 获取进度数据（优先从缓存，可选从云端刷新）
    */
-  getProgress() {
-    return this.get(this.KEYS.PROGRESS, {
-      vocabulary: 40,
-      listening: 35,
-      reading: 38,
-      writing: 32,
-      speaking: 30,
-      overall: 35
+  getProgress(forceRefresh = false) {
+    const localProgress = this.get(this.KEYS.PROGRESS, {
+      vocabulary: 0,
+      listening: 0,
+      reading: 0,
+      writing: 0,
+      speaking: 0,
+      overall: 0
     });
+
+    // 异步刷新云端数据
+    if (forceRefresh && this.canUseCloudSync()) {
+      this.fetchProgressFromCloud();
+    }
+
+    return localProgress;
   },
 
   /**
    * 更新进度数据
-   * @param {Object} progress - 进度数据
    */
-  setProgress(progress) {
+  async setProgress(progress) {
+    // 先更新本地
     this.set(this.KEYS.PROGRESS, progress);
+
+    // 同步到云端
+    if (this.canUseCloudSync()) {
+      await this.syncProgressToCloud(progress);
+    }
   },
 
   /**
    * 更新单项进度
-   * @param {string} skill - 技能名称
-   * @param {number} value - 进度值
    */
-  updateSkillProgress(skill, value) {
+  async updateSkillProgress(skill, value) {
     const progress = this.getProgress();
     progress[skill] = Math.min(100, Math.max(0, value));
     progress.overall = this.calculateOverallProgress(progress);
-    this.setProgress(progress);
+    
+    // 保存到本地
+    this.set(this.KEYS.PROGRESS, progress);
+
+    // 同步到云端
+    if (this.canUseCloudSync()) {
+      const updateData = {};
+      updateData[skill] = value;
+      await this.syncProgressToCloud(updateData);
+    }
+
     return progress;
   },
 
   /**
    * 计算总体进度
-   * @param {Object} progress - 进度数据
-   * @returns {number}
    */
   calculateOverallProgress(progress) {
     const weights = {
@@ -127,8 +236,7 @@ const Storage = {
   // ==================== 打卡数据 ====================
 
   /**
-   * 获取打卡记录
-   * @returns {Object}
+   * 获取打卡记录（本地缓存）
    */
   getCheckinData() {
     return this.get(this.KEYS.CHECKIN, {});
@@ -136,8 +244,6 @@ const Storage = {
 
   /**
    * 获取某天的打卡记录
-   * @param {string} date - 日期字符串 YYYY-MM-DD
-   * @returns {Object|null}
    */
   getCheckinByDate(date) {
     const data = this.getCheckinData();
@@ -146,8 +252,6 @@ const Storage = {
 
   /**
    * 设置某天的打卡记录
-   * @param {string} date - 日期字符串 YYYY-MM-DD
-   * @param {Object} record - 打卡记录
    */
   setCheckinByDate(date, record) {
     const data = this.getCheckinData();
@@ -157,27 +261,45 @@ const Storage = {
 
   /**
    * 今日打卡
-   * @param {Array} tasks - 完成的任务列表
-   * @param {number} studyTime - 学习时长（分钟）
    */
-  checkinToday(tasks, studyTime = 0) {
+  async checkinToday(tasks, studyTime = 0) {
     const today = this.getTodayString();
+
+    // 本地记录
     this.setCheckinByDate(today, {
       completed: true,
       tasks: tasks,
       studyTime: studyTime,
       timestamp: Date.now()
     });
-    
-    // 更新学习数据
+
+    // 更新本地学习数据
     const study = this.getStudyData();
     study.streak = this.calculateStreak();
     this.setStudyData(study);
+
+    // 同步到云端
+    if (this.canUseCloudSync()) {
+      try {
+        const result = await API.learning.checkin(tasks, studyTime);
+        // 更新云端返回的连续打卡天数
+        if (result && result.streak_days !== undefined) {
+          study.streak = result.streak_days;
+          this.setStudyData(study);
+        }
+        return result;
+      } catch (error) {
+        console.error('Cloud checkin failed:', error);
+        // 加入同步队列
+        this._syncQueue.push({ type: 'checkin', data: { tasks, studyTime } });
+      }
+    }
+
+    return { streak_days: study.streak };
   },
 
   /**
    * 检查今日是否已打卡
-   * @returns {boolean}
    */
   isTodayCheckedIn() {
     const today = this.getTodayString();
@@ -185,11 +307,40 @@ const Storage = {
     return record && record.completed;
   },
 
+  /**
+   * 从云端获取打卡历史
+   */
+  async fetchCheckinHistory(startDate = null, endDate = null) {
+    if (!this.canUseCloudSync()) return this.getCheckinData();
+
+    try {
+      const history = await API.learning.getCheckinHistory(startDate, endDate);
+
+      // 更新本地缓存
+      const localData = this.getCheckinData();
+      if (history.records) {
+        history.records.forEach(record => {
+          localData[record.checkin_date] = {
+            completed: true,
+            tasks: record.tasks,
+            studyTime: record.study_time,
+            timestamp: new Date(record.checkin_date).getTime()
+          };
+        });
+        this.set(this.KEYS.CHECKIN, localData);
+      }
+
+      return history;
+    } catch (error) {
+      console.error('Failed to fetch checkin history:', error);
+      return { records: [], current_streak: this.calculateStreak() };
+    }
+  },
+
   // ==================== 学习数据 ====================
 
   /**
    * 获取学习数据
-   * @returns {Object}
    */
   getStudyData() {
     const defaultData = {
@@ -205,7 +356,6 @@ const Storage = {
 
   /**
    * 设置学习数据
-   * @param {Object} data - 学习数据
    */
   setStudyData(data) {
     this.set(this.KEYS.STUDY, data);
@@ -213,7 +363,6 @@ const Storage = {
 
   /**
    * 获取当前学习天数
-   * @returns {number}
    */
   getCurrentDay() {
     const study = this.getStudyData();
@@ -225,21 +374,17 @@ const Storage = {
 
   /**
    * 计算连续打卡天数
-   * @returns {number}
    */
   calculateStreak() {
     const checkinData = this.getCheckinData();
     let streak = 0;
     let currentDate = new Date();
-    
-    // 检查今天是否打卡
+
     const todayStr = this.getTodayString();
     if (!checkinData[todayStr]?.completed) {
-      // 如果今天没打卡，从昨天开始检查
       currentDate.setDate(currentDate.getDate() - 1);
     }
-    
-    // 向前检查连续打卡天数
+
     while (true) {
       const dateStr = this.formatDate(currentDate);
       if (checkinData[dateStr]?.completed) {
@@ -249,26 +394,23 @@ const Storage = {
         break;
       }
     }
-    
-    // 如果今天已打卡，streak 需要 +1
+
     if (checkinData[todayStr]?.completed) {
       streak++;
     }
-    
+
     return streak;
   },
 
   /**
    * 更新今日任务完成状态
-   * @param {string} task - 任务名称
-   * @param {boolean} completed - 是否完成
    */
   updateTodayTask(task, completed) {
     const study = this.getStudyData();
     if (!study.todayTasks) {
       study.todayTasks = [];
     }
-    
+
     if (completed) {
       if (!study.todayTasks.includes(task)) {
         study.todayTasks.push(task);
@@ -276,14 +418,13 @@ const Storage = {
     } else {
       study.todayTasks = study.todayTasks.filter(t => t !== task);
     }
-    
+
     this.setStudyData(study);
     return study.todayTasks;
   },
 
   /**
    * 获取今日已完成任务
-   * @returns {Array}
    */
   getTodayTasks() {
     const study = this.getStudyData();
@@ -292,35 +433,49 @@ const Storage = {
 
   /**
    * 增加学习时长
-   * @param {number} minutes - 分钟数
    */
-  addStudyTime(minutes) {
+  async addStudyTime(minutes) {
     const study = this.getStudyData();
     study.totalTime = (study.totalTime || 0) + minutes;
     this.setStudyData(study);
-    
-    // 同时更新今日打卡记录的学习时长
+
     const today = this.getTodayString();
     const checkin = this.getCheckinByDate(today) || { tasks: [], studyTime: 0 };
     checkin.studyTime = (checkin.studyTime || 0) + minutes;
     this.setCheckinByDate(today, checkin);
+
+    // 同步到云端
+    if (this.canUseCloudSync()) {
+      try {
+        await API.learning.addStudyTime(minutes);
+      } catch (error) {
+        console.error('Failed to sync study time:', error);
+      }
+    }
   },
 
   /**
    * 增加已学词汇数
-   * @param {number} count - 词汇数
    */
-  addWordsLearned(count) {
+  async addWordsLearned(count) {
     const study = this.getStudyData();
     study.wordsLearned = (study.wordsLearned || 0) + count;
     this.setStudyData(study);
+
+    // 同步到云端
+    if (this.canUseCloudSync()) {
+      try {
+        await API.learning.addWordsLearned(count);
+      } catch (error) {
+        console.error('Failed to sync words learned:', error);
+      }
+    }
   },
 
   // ==================== 评估数据 ====================
 
   /**
    * 获取评估数据
-   * @returns {Object}
    */
   getAssessmentData() {
     return this.get(this.KEYS.ASSESSMENT, {
@@ -334,8 +489,6 @@ const Storage = {
 
   /**
    * 保存评估结果
-   * @param {string} type - 评估类型 (initial/week1/week2/week3/final)
-   * @param {Object} result - 评估结果
    */
   saveAssessment(type, result) {
     const data = this.getAssessmentData();
@@ -351,7 +504,6 @@ const Storage = {
 
   /**
    * 获取今天的日期字符串
-   * @returns {string} YYYY-MM-DD
    */
   getTodayString() {
     return this.formatDate(new Date());
@@ -359,8 +511,6 @@ const Storage = {
 
   /**
    * 格式化日期
-   * @param {Date} date - 日期对象
-   * @returns {string} YYYY-MM-DD
    */
   formatDate(date) {
     const year = date.getFullYear();
@@ -372,7 +522,7 @@ const Storage = {
   /**
    * 初始化学习（首次使用）
    */
-  initializeStudy() {
+  async initializeStudy() {
     const study = this.getStudyData();
     if (!study.startDate) {
       study.startDate = this.getTodayString();
@@ -383,7 +533,37 @@ const Storage = {
       study.todayTasks = [];
       this.setStudyData(study);
     }
+
+    // 如果已登录，从云端同步数据
+    if (this.canUseCloudSync()) {
+      await this.fetchProgressFromCloud();
+    }
+
     return study;
+  },
+
+  /**
+   * 全量同步（登录后调用）
+   */
+  async fullSync() {
+    if (!this.canUseCloudSync()) return;
+
+    try {
+      // 获取云端进度
+      await this.fetchProgressFromCloud();
+
+      // 获取最近30天打卡记录
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      await this.fetchCheckinHistory(this.formatDate(thirtyDaysAgo));
+
+      // 处理同步队列
+      await this.processSyncQueue();
+
+      console.log('Full sync completed');
+    } catch (error) {
+      console.error('Full sync failed:', error);
+    }
   },
 
   /**
@@ -399,3 +579,10 @@ const Storage = {
 
 // 初始化
 Storage.initializeStudy();
+
+// 监听登录状态变化，自动同步
+window.addEventListener('focus', () => {
+  if (Storage.canUseCloudSync()) {
+    Storage.processSyncQueue();
+  }
+});

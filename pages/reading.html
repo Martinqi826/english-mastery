@@ -231,13 +231,14 @@
     <nav class="nav">
       <div class="container">
         <ul class="nav-list">
-          <li class="nav-item"><a href="../index.html" class="nav-link"><span>📊</span> 仪表盘</a></li>
-          <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>📖</span> 词汇学习</a></li>
-          <li class="nav-item"><a href="listening.html" class="nav-link"><span>👂</span> 听力训练</a></li>
-          <li class="nav-item"><a href="reading.html" class="nav-link active"><span>📚</span> 阅读练习</a></li>
-          <li class="nav-item"><a href="writing.html" class="nav-link"><span>✍️</span> 写作练习</a></li>
-          <li class="nav-item"><a href="test.html" class="nav-link"><span>🎯</span> 测试评估</a></li>
-          <li class="nav-item"><a href="calendar.html" class="nav-link"><span>📅</span> 打卡日历</a></li>
+          <li class="nav-item"><a href="../index.html" class="nav-link"><span>◉</span> 仪表盘</a></li>
+          <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>◇</span> 词汇学习</a></li>
+          <li class="nav-item"><a href="listening.html" class="nav-link"><span>◇</span> 听力训练</a></li>
+          <li class="nav-item"><a href="reading.html" class="nav-link active"><span>◆</span> 阅读练习</a></li>
+          <li class="nav-item"><a href="writing.html" class="nav-link"><span>◇</span> 写作练习</a></li>
+          <li class="nav-item"><a href="test.html" class="nav-link"><span>◇</span> 测试评估</a></li>
+          <li class="nav-item"><a href="calendar.html" class="nav-link"><span>◇</span> 打卡日历</a></li>
+          <li class="nav-item"><a href="materials.html" class="nav-link"><span>◇</span> 我的素材</a></li>
         </ul>
       </div>
     </nav>
@@ -374,7 +375,18 @@
   </div>
 
   <script src="../js/storage.js"></script>
+  <script src="../js/materials.js"></script>
   <script>
+    // ========== 模式检测 ==========
+    const urlParams = new URLSearchParams(window.location.search);
+    const materialId = urlParams.get('material');
+    const isCustomMode = !!materialId;
+    
+    // 自定义模式数据
+    let customContent = '';
+    let customQuestions = [];
+    let customQuestionIds = [];
+    
     const articles = [
       {
         title: "Professional Email: Project Update",
@@ -401,12 +413,159 @@
     let completedArticles = [];
     let fontSize = 16;
     
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
       updateDayBadge();
-      loadProgress();
-      updateUI();
-      setupHighlightWords();
+      
+      if (isCustomMode) {
+        await loadCustomReading();
+      } else {
+        loadProgress();
+        updateUI();
+        setupHighlightWords();
+      }
     });
+    
+    // 加载自定义阅读内容
+    async function loadCustomReading() {
+      try {
+        // 隐藏文章列表（选择包含 articlesList 的卡片）
+        const articlesCard = document.getElementById('articlesList')?.closest('.card');
+        if (articlesCard) articlesCard.style.display = 'none';
+        document.querySelector('h1').textContent = '📚 阅读练习 · 加载中...';
+        
+        const result = await Materials.getQuestions(materialId);
+        customContent = result.data?.content || '';
+        customQuestions = result.data?.questions || [];
+        customQuestionIds = customQuestions.map(q => q.id);
+        
+        if (customQuestions.length === 0) {
+          alert('该素材没有生成阅读题目，请返回素材页面');
+          window.location.href = 'materials.html';
+          return;
+        }
+        
+        // 更新标题
+        document.querySelector('h1').textContent = '📚 阅读练习 · 自定义素材';
+        
+        // 更新文章内容
+        const articleContent = document.getElementById('articleContent');
+        articleContent.innerHTML = customContent.split('\n\n').map(p => 
+          p.trim() ? `<p>${escapeHtml(p)}</p>` : ''
+        ).join('');
+        
+        // 更新文章标题和 meta
+        document.getElementById('articleTitle').textContent = '自定义阅读材料';
+        const articleMeta = document.querySelector('.article-meta');
+        if (articleMeta) {
+          const wordCount = customContent.split(/\s+/).length;
+          articleMeta.innerHTML = `
+            <span>📝 自定义素材</span>
+            <span>📖 约${wordCount}词</span>
+            <span>❓ ${customQuestions.length}道题目</span>
+          `;
+        }
+        
+        // 渲染问题
+        renderCustomQuestions();
+        
+        // 显示提交按钮（可能之前被隐藏）
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+          submitBtn.classList.remove('hidden');
+          submitBtn.onclick = submitCustomAnswers;
+        }
+        
+        // 隐藏结果区域
+        const resultSection = document.getElementById('resultSection');
+        if (resultSection) resultSection.classList.add('hidden');
+        
+      } catch (error) {
+        console.error('Failed to load custom reading:', error);
+        alert('加载阅读内容失败: ' + error.message);
+        window.location.href = 'materials.html';
+      }
+    }
+    
+    // 渲染自定义问题
+    function renderCustomQuestions() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = customQuestions.map((q, index) => `
+        <div class="question-card" data-question="${index}">
+          <div class="question-text">${index + 1}. ${escapeHtml(q.question_text)}</div>
+          <div class="answer-options">
+            ${q.options.map((opt, i) => `
+              <div class="answer-option" onclick="selectAnswer(${index}, ${i})">
+                ${String.fromCharCode(65 + i)}. ${escapeHtml(opt)}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+      
+      // 重置答案数组
+      userAnswers = new Array(customQuestions.length).fill(-1);
+    }
+    
+    // 提交自定义答案
+    async function submitCustomAnswers() {
+      let correct = 0;
+      
+      for (let i = 0; i < customQuestions.length; i++) {
+        const q = customQuestions[i];
+        const answer = userAnswers[i];
+        const card = document.querySelector(`.question-card[data-question="${i}"]`);
+        const options = card.querySelectorAll('.answer-option');
+        
+        // 提交答案到后端
+        if (answer >= 0 && customQuestionIds[i]) {
+          try {
+            await Materials.submitAnswer(materialId, customQuestionIds[i], answer);
+          } catch (err) {
+            console.error('Failed to submit answer:', err);
+          }
+        }
+        
+        // 显示结果
+        if (answer === q.correct_answer) {
+          options[answer].classList.add('correct');
+          correct++;
+        } else {
+          if (answer >= 0) {
+            options[answer].classList.add('wrong');
+          }
+          options[q.correct_answer].classList.add('correct');
+        }
+        
+        // 显示解析
+        if (q.explanation) {
+          const explanationDiv = document.createElement('div');
+          explanationDiv.className = 'explanation';
+          explanationDiv.style.cssText = 'margin-top: 12px; padding: 12px; background: #f7f6f3; border-radius: 6px; font-size: 0.875rem; color: #37352f;';
+          explanationDiv.innerHTML = `<strong>解析：</strong>${escapeHtml(q.explanation)}`;
+          card.appendChild(explanationDiv);
+        }
+      }
+      
+      const accuracy = Math.round((correct / customQuestions.length) * 100);
+      
+      document.getElementById('submitBtn').classList.add('hidden');
+      document.getElementById('resultSection').classList.remove('hidden');
+      document.getElementById('accuracy').textContent = accuracy;
+      
+      // 修改返回按钮
+      const returnBtn = document.querySelector('#resultSection button');
+      if (returnBtn) {
+        returnBtn.textContent = '返回我的素材';
+        returnBtn.onclick = () => location.href = 'materials.html';
+      }
+    }
+    
+    // HTML 转义函数
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
     
     function updateDayBadge() {
       const currentDay = Storage.getCurrentDay();

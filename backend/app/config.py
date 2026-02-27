@@ -126,6 +126,9 @@ class Settings(BaseSettings):
     
     # 限流配置
     RATE_LIMIT_PER_MINUTE: int = 100
+    
+    # AI 服务配置 (Claude API)
+    ANTHROPIC_API_KEY: str = ""
 
 
 @lru_cache()

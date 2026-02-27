@@ -9,6 +9,15 @@ from app.schemas.learning import (
     CheckinResponse,
     StatsResponse
 )
+from app.schemas.material import (
+    MaterialCreateText,
+    MaterialCreateURL,
+    MaterialListItem,
+    MaterialDetail,
+    MaterialStatusResponse,
+    VocabularyItem,
+    QuestionItem,
+)
 
 __all__ = [
     "APIResponse",
@@ -23,4 +32,11 @@ __all__ = [
     "CheckinRequest",
     "CheckinResponse",
     "StatsResponse",
+    "MaterialCreateText",
+    "MaterialCreateURL",
+    "MaterialListItem",
+    "MaterialDetail",
+    "MaterialStatusResponse",
+    "VocabularyItem",
+    "QuestionItem",
 ]

@@ -1,0 +1,72 @@
+---
+description: 
+alwaysApply: true
+enabled: true
+updatedAt: 2026-02-27T15:30:27.439Z
+provider: 
+---
+
+# Notion 风格设计规范
+
+本项目 English Mastery 遵循 Notion 的极简主义设计风格。在进行任何 UI 更改时，必须遵守以下规则：
+
+## 核心原则
+
+1. **黑白灰为主** - 不使用彩色渐变
+2. **极简克制** - 去除一切不必要的装饰
+3. **功能优先** - 每个元素都有明确目的
+
+## 禁止使用
+
+- ❌ `linear-gradient` 渐变背景
+- ❌ 强烈的 `box-shadow`
+- ❌ 圆形彩色按钮
+- ❌ 发光效果、3D 效果
+- ❌ 高饱和度彩色
+
+## 按钮样式
+
+```css
+/* 主按钮 */
+background: #191919;  /* 纯黑，非渐变 */
+color: white;
+border-radius: 8px;
+
+/* 图标按钮 */
+background: transparent;
+color: #9b9a97;  /* 灰色 */
+/* 悬停 */
+background: #f7f6f3;
+color: #37352f;
+```
+
+## 图标风格
+
+- 使用线条图标（stroke），非填充（fill）
+- 颜色：灰色 `#9b9a97`，悬停变深 `#37352f`
+- 播放中状态：蓝色 `#2383e2`
+
+## 颜色系统
+
+```css
+--notion-black: #191919;      /* 标题、主按钮 */
+--notion-dark: #37352f;       /* 正文 */
+--notion-gray: #9b9a97;       /* 图标、辅助文字 */
+--notion-bg-hover: #f7f6f3;   /* 悬停背景 */
+--notion-gray-light: #e3e2e0; /* 边框 */
+
+/* 功能色（克制使用） */
+--notion-blue: #2383e2;   /* 链接、激活状态 */
+--notion-green: #0f7b6c;  /* 成功 */
+--notion-red: #e03e3e;    /* 错误 */
+```
+
+## 交互动效
+
+- 过渡时间：120ms - 200ms
+- 悬停效果：仅改变背景色或透明度
+- 避免 `transform: scale()` 等夸张动画
+
+## 参考文档
+
+详细规范请参考 `/DESIGN_GUIDE.md`

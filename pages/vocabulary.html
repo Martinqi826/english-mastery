@@ -33,48 +33,55 @@
       gap: var(--spacing-sm);
     }
     
+    /* Notion 风格发音按钮 - 透明背景 + 灰色图标 */
     .speak-btn {
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      background: transparent;
       border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      border-radius: var(--radius-md, 8px);
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+      transition: all 0.12s ease;
+      color: var(--notion-gray, #9b9a97);
     }
     
     .speak-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      background: var(--notion-bg-hover, #f7f6f3);
+      color: var(--notion-dark, #37352f);
     }
     
     .speak-btn:active {
-      transform: scale(0.95);
+      background: var(--notion-gray-lighter, #f1f1ef);
     }
     
     .speak-btn.speaking {
-      animation: pulse 0.6s infinite;
+      color: var(--notion-blue, #2383e2);
+      animation: speakPulse 0.8s ease infinite;
     }
     
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.15); }
+    @keyframes speakPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
     
     .speak-btn svg {
       width: 20px;
       height: 20px;
-      fill: white;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
     
+    /* Notion 风格迷你发音按钮 */
     .speak-btn-mini {
-      background: var(--primary-color);
+      background: transparent;
       border: none;
-      border-radius: 50%;
+      border-radius: var(--radius-sm, 4px);
       width: 28px;
       height: 28px;
       min-width: 28px;
@@ -83,20 +90,29 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s ease;
-      margin-left: var(--spacing-sm);
+      transition: all 0.12s ease;
+      margin-left: var(--spacing-xs, 4px);
       flex-shrink: 0;
+      color: var(--notion-gray, #9b9a97);
     }
     
     .speak-btn-mini:hover {
-      background: var(--secondary-color);
-      transform: scale(1.1);
+      background: var(--notion-bg-hover, #f7f6f3);
+      color: var(--notion-dark, #37352f);
+    }
+    
+    .speak-btn-mini.speaking {
+      color: var(--notion-blue, #2383e2);
     }
     
     .speak-btn-mini svg {
-      width: 14px;
-      height: 14px;
-      fill: white;
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
     
     .vocab-meaning {
@@ -110,12 +126,21 @@
     }
     
     .vocab-example {
-      background: var(--bg-tertiary);
+      background: var(--notion-bg-hover, #f7f6f3);
       padding: var(--spacing-md);
       border-radius: var(--radius-md);
       font-style: italic;
-      color: var(--text-secondary);
+      color: var(--notion-gray-dark, #787774);
       margin-bottom: var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .vocab-example-text {
+      flex: 1;
+      text-align: center;
     }
     
     .vocab-controls {
@@ -136,23 +161,27 @@
     }
     
     .vocab-btn.show {
-      background: var(--primary-color);
+      background: var(--notion-black, #191919);
       color: white;
+      box-shadow: var(--shadow-sm);
     }
     
     .vocab-btn.know {
-      background: var(--success-color);
+      background: var(--notion-green, #0f7b6c);
       color: white;
+      box-shadow: var(--shadow-sm);
     }
     
     .vocab-btn.unknown {
-      background: var(--warning-color);
+      background: var(--notion-orange, #d9730d);
       color: white;
+      box-shadow: var(--shadow-sm);
     }
     
     .vocab-btn:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
+      opacity: 0.9;
     }
     
     .vocab-progress {
@@ -297,37 +326,42 @@
         <ul class="nav-list">
           <li class="nav-item">
             <a href="../index.html" class="nav-link">
-              <span>📊</span> 仪表盘
+              <span>◉</span> 仪表盘
             </a>
           </li>
           <li class="nav-item">
             <a href="vocabulary.html" class="nav-link active">
-              <span>📖</span> 词汇学习
+              <span>◆</span> 词汇学习
             </a>
           </li>
           <li class="nav-item">
             <a href="listening.html" class="nav-link">
-              <span>👂</span> 听力训练
+              <span>◇</span> 听力训练
             </a>
           </li>
           <li class="nav-item">
             <a href="reading.html" class="nav-link">
-              <span>📚</span> 阅读练习
+              <span>◇</span> 阅读练习
             </a>
           </li>
           <li class="nav-item">
             <a href="writing.html" class="nav-link">
-              <span>✍️</span> 写作练习
+              <span>◇</span> 写作练习
             </a>
           </li>
           <li class="nav-item">
             <a href="test.html" class="nav-link">
-              <span>🎯</span> 测试评估
+              <span>◇</span> 测试评估
             </a>
           </li>
           <li class="nav-item">
             <a href="calendar.html" class="nav-link">
-              <span>📅</span> 打卡日历
+              <span>◇</span> 打卡日历
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="materials.html" class="nav-link">
+              <span>◇</span> 我的素材
             </a>
           </li>
         </ul>
@@ -363,12 +397,22 @@
               <span id="vocabPhonetic">/ˈloʊdɪŋ/</span>
               <button class="speak-btn" id="speakBtn" onclick="speakWord()" title="播放发音">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                  <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                  <path d="M15.54 8.46a5 5 0 010 7.07"/>
+                  <path d="M19.07 4.93a10 10 0 010 14.14"/>
                 </svg>
               </button>
             </div>
             <div class="vocab-meaning hidden" id="vocabMeaning">加载中...</div>
-            <div class="vocab-example hidden" id="vocabExample">"Example sentence loading..."</div>
+            <div class="vocab-example hidden" id="vocabExample">
+              <span class="vocab-example-text" id="vocabExampleText">"Example sentence loading..."</span>
+              <button class="speak-btn-mini" id="speakExampleBtn" onclick="speakExample()" title="播放例句发音">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                  <path d="M15.54 8.46a5 5 0 010 7.07"/>
+                </svg>
+              </button>
+            </div>
             
             <div class="vocab-controls">
               <button class="vocab-btn show" id="showBtn" onclick="showMeaning()">显示释义</button>
@@ -399,9 +443,15 @@
   </div>
 
   <script src="../js/storage.js"></script>
+  <script src="../js/materials.js"></script>
   <script>
-    // 今日词汇数据
-    const todayVocabulary = [
+    // ========== 模式检测 ==========
+    const urlParams = new URLSearchParams(window.location.search);
+    const materialId = urlParams.get('material');
+    const isCustomMode = !!materialId;
+    
+    // 今日词汇数据（默认模式）
+    let todayVocabulary = [
       { word: "agenda", phonetic: "/əˈdʒendə/", meaning: "议程；日程表", example: "Let's go through today's agenda." },
       { word: "deadline", phonetic: "/ˈdedlaɪn/", meaning: "截止日期", example: "The deadline for this project is next Friday." },
       { word: "collaborate", phonetic: "/kəˈlæbəreɪt/", meaning: "合作；协作", example: "We need to collaborate with the marketing team." },
@@ -437,14 +487,81 @@
     let currentIndex = 0;
     let learnedWords = [];
     let isShowingMeaning = false;
+    let customVocabIds = []; // 存储自定义词汇的 ID，用于更新状态
     
     // 初始化
-    document.addEventListener('DOMContentLoaded', function() {
-      loadProgress();
-      showCurrentWord();
-      renderVocabList();
+    document.addEventListener('DOMContentLoaded', async function() {
       updateDayBadge();
+      
+      // 预加载语音列表
+      if (window.speechSynthesis) {
+        speechSynthesis.getVoices();
+        speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+      }
+      
+      // 根据模式初始化
+      if (isCustomMode) {
+        await loadCustomVocabulary();
+      } else {
+        loadProgress();
+        showCurrentWord();
+        renderVocabList();
+      }
     });
+    
+    // 加载自定义素材的词汇
+    async function loadCustomVocabulary() {
+      try {
+        // 显示加载状态
+        document.querySelector('h1').textContent = '📖 词汇学习 · 加载中...';
+        
+        const result = await Materials.getVocabularies(materialId);
+        const vocabs = result.data || [];
+        
+        if (vocabs.length === 0) {
+          alert('该素材没有生成词汇，请返回素材页面');
+          window.location.href = 'materials.html';
+          return;
+        }
+        
+        // 转换数据格式
+        todayVocabulary = vocabs.map(v => ({
+          id: v.id,
+          word: v.word,
+          phonetic: v.phonetic || '',
+          meaning: v.translation,
+          example: v.example || '',
+          example_translation: v.example_translation || '',
+          definition: v.definition || '',
+          synonyms: v.synonyms || [],
+          collocations: v.collocations || [],
+          is_learned: v.is_learned,
+          is_mastered: v.is_mastered
+        }));
+        
+        customVocabIds = vocabs.map(v => v.id);
+        
+        // 找到第一个未学习的词汇
+        currentIndex = todayVocabulary.findIndex(v => !v.is_learned);
+        if (currentIndex === -1) currentIndex = 0;
+        
+        // 更新标题
+        document.querySelector('h1').textContent = '📖 词汇学习 · 自定义素材';
+        
+        // 初始化已学词汇列表
+        learnedWords = todayVocabulary
+          .map((v, i) => v.is_learned ? i : -1)
+          .filter(i => i >= 0);
+        
+        showCurrentWord();
+        renderVocabList();
+        
+      } catch (error) {
+        console.error('Failed to load custom vocabulary:', error);
+        alert('加载词汇失败: ' + error.message);
+        window.location.href = 'materials.html';
+      }
+    }
     
     function updateDayBadge() {
       const currentDay = Storage.getCurrentDay();
@@ -480,7 +597,7 @@
       document.getElementById('vocabWord').textContent = vocab.word;
       document.getElementById('vocabPhonetic').textContent = vocab.phonetic;
       document.getElementById('vocabMeaning').textContent = vocab.meaning;
-      document.getElementById('vocabExample').textContent = `"${vocab.example}"`;
+      document.getElementById('vocabExampleText').textContent = `"${vocab.example}"`;
       
       // 隐藏释义
       document.getElementById('vocabMeaning').classList.add('hidden');
@@ -506,6 +623,14 @@
       if (!learnedWords.includes(currentIndex)) {
         learnedWords.push(currentIndex);
       }
+      
+      // 如果是自定义模式，同步到后端
+      if (isCustomMode && customVocabIds[currentIndex]) {
+        Materials.updateVocabulary(materialId, customVocabIds[currentIndex], {
+          is_learned: true
+        }).catch(err => console.error('Failed to update vocab status:', err));
+      }
+      
       nextWord();
     }
     
@@ -534,15 +659,29 @@
       document.getElementById('vocabCard').classList.add('hidden');
       document.getElementById('completeCard').classList.remove('hidden');
       
-      // 更新存储
-      Storage.addWordsLearned(learnedWords.length);
-      Storage.updateTodayTask('vocabulary', true);
-      Storage.addStudyTime(15);
+      // 更新完成信息
+      const completeText = document.querySelector('#completeCard p.text-muted');
+      if (completeText) {
+        completeText.textContent = `你已经学习了 ${learnedWords.length} 个词汇`;
+      }
       
-      // 更新进度
-      const progress = Storage.getProgress();
-      progress.vocabulary = Math.min(100, (progress.vocabulary || 40) + 2);
-      Storage.setProgress(progress);
+      // 自定义模式：返回素材页面
+      if (isCustomMode) {
+        const returnBtn = document.querySelector('#completeCard button');
+        if (returnBtn) {
+          returnBtn.textContent = '返回我的素材';
+          returnBtn.onclick = () => location.href = 'materials.html';
+        }
+      } else {
+        // 默认模式：更新存储
+        Storage.addWordsLearned(learnedWords.length);
+        Storage.updateTodayTask('vocabulary', true);
+        Storage.addStudyTime(15);
+        
+        const progress = Storage.getProgress();
+        progress.vocabulary = Math.min(100, (progress.vocabulary || 40) + 2);
+        Storage.setProgress(progress);
+      }
     }
     
     function renderVocabList() {
@@ -553,7 +692,8 @@
             <span class="vocab-item-word-text">${vocab.word}</span>
             <button class="speak-btn-mini" onclick="event.stopPropagation(); speakWordByIndex(${index})" title="播放发音">
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                <path d="M15.54 8.46a5 5 0 010 7.07"/>
               </svg>
             </button>
           </div>
@@ -592,9 +732,75 @@
       if (index >= 0 && index < todayVocabulary.length) {
         const word = todayVocabulary[index].word;
         // 找到对应的按钮添加动画
-        const buttons = document.querySelectorAll('.speak-btn-mini');
+        const buttons = document.querySelectorAll('.vocab-list .speak-btn-mini');
         speak(word, buttons[index]);
       }
+    }
+    
+    // 播放当前例句发音
+    function speakExample() {
+      if (currentIndex >= todayVocabulary.length) return;
+      const example = todayVocabulary[currentIndex].example;
+      // 例句使用 Web Speech API，因为在线词典 API 不适合读句子
+      speakSentence(example, document.getElementById('speakExampleBtn'));
+    }
+    
+    // 播放句子 - 专门用于例句发音
+    function speakSentence(text, btnElement) {
+      // 停止之前的音频
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      
+      // 停止之前的语音合成
+      if (window.speechSynthesis) {
+        speechSynthesis.cancel();
+      }
+      
+      // 移除所有按钮的 speaking 状态
+      document.querySelectorAll('.speak-btn, .speak-btn-mini').forEach(btn => {
+        btn.classList.remove('speaking');
+      });
+      
+      // 添加动画效果
+      if (btnElement) {
+        btnElement.classList.add('speaking');
+      }
+      
+      // 使用 Web Speech API 朗读句子
+      if (!window.speechSynthesis) {
+        console.log('浏览器不支持语音合成');
+        if (btnElement) btnElement.classList.remove('speaking');
+        return;
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.9;  // 稍慢一点，便于学习
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      
+      // 获取英语语音
+      const voices = speechSynthesis.getVoices();
+      const englishVoice = voices.find(v => v.lang === 'en-US') ||
+                          voices.find(v => v.lang.startsWith('en-US')) ||
+                          voices.find(v => v.lang.includes('en-US')) ||
+                          voices.find(v => v.lang === 'en-GB') ||
+                          voices.find(v => v.lang.startsWith('en'));
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+      }
+      
+      utterance.onend = () => {
+        if (btnElement) btnElement.classList.remove('speaking');
+      };
+      
+      utterance.onerror = () => {
+        if (btnElement) btnElement.classList.remove('speaking');
+      };
+      
+      speechSynthesis.speak(utterance);
     }
     
     // 核心发音函数 - 使用在线词典发音

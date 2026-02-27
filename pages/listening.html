@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="../css/styles.css">
   <style>
     .audio-player {
-      background: var(--bg-primary);
+      background: var(--notion-bg, #ffffff);
       border-radius: var(--radius-lg);
       padding: var(--spacing-xl);
       margin-bottom: var(--spacing-lg);
-      box-shadow: var(--shadow-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
     }
     
     .audio-title {
@@ -21,7 +22,7 @@
     }
     
     .audio-meta {
-      color: var(--text-muted);
+      color: var(--notion-gray, #9b9a97);
       font-size: 0.875rem;
       margin-bottom: var(--spacing-lg);
     }
@@ -33,24 +34,34 @@
       margin-bottom: var(--spacing-lg);
     }
     
+    /* Notion 风格播放按钮 */
     .play-btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--primary-color);
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md, 8px);
+      background: var(--notion-black, #191919);
       color: white;
       border: none;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
+      transition: all 0.12s ease;
     }
     
     .play-btn:hover {
-      background: var(--primary-dark);
-      transform: scale(1.05);
+      background: var(--notion-dark, #37352f);
+    }
+    
+    .play-btn:active {
+      transform: scale(0.98);
+    }
+    
+    .play-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
     }
     
     .audio-progress {
@@ -59,7 +70,7 @@
     
     .audio-progress-bar {
       height: 6px;
-      background: var(--progress-bg);
+      background: var(--notion-gray-light, #e3e2e0);
       border-radius: var(--radius-full);
       cursor: pointer;
       position: relative;
@@ -67,7 +78,7 @@
     
     .audio-progress-fill {
       height: 100%;
-      background: var(--primary-color);
+      background: var(--notion-black, #191919);
       border-radius: var(--radius-full);
       width: 0%;
       transition: width 0.1s;
@@ -77,7 +88,7 @@
       display: flex;
       justify-content: space-between;
       font-size: 0.75rem;
-      color: var(--text-muted);
+      color: var(--notion-gray, #9b9a97);
       margin-top: var(--spacing-xs);
     }
     
@@ -88,22 +99,28 @@
     
     .speed-btn {
       padding: var(--spacing-xs) var(--spacing-sm);
-      border: 1px solid var(--border-color);
-      background: var(--bg-primary);
-      border-radius: var(--radius-sm);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
+      background: transparent;
+      border-radius: var(--radius-sm, 4px);
       font-size: 0.75rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.12s ease;
+      color: var(--notion-gray, #9b9a97);
+    }
+    
+    .speed-btn:hover {
+      background: var(--notion-bg-hover, #f7f6f3);
+      color: var(--notion-dark, #37352f);
     }
     
     .speed-btn.active {
-      background: var(--primary-color);
+      background: var(--notion-black, #191919);
       color: white;
-      border-color: var(--primary-color);
+      border-color: var(--notion-black, #191919);
     }
     
     .transcript {
-      background: var(--bg-tertiary);
+      background: var(--notion-bg-hover, #f7f6f3);
       border-radius: var(--radius-md);
       padding: var(--spacing-lg);
       max-height: 300px;
@@ -116,21 +133,21 @@
       padding: var(--spacing-xs) var(--spacing-sm);
       border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.12s ease;
     }
     
     .transcript-line:hover {
-      background: var(--bg-secondary);
+      background: var(--notion-gray-lighter, #f1f1ef);
     }
     
     .transcript-line.active {
-      background: var(--primary-light);
+      background: var(--notion-blue, #2383e2);
       color: white;
     }
     
     .transcript-time {
       font-size: 0.75rem;
-      color: var(--text-muted);
+      color: var(--notion-gray, #9b9a97);
       margin-right: var(--spacing-sm);
     }
     
@@ -139,10 +156,11 @@
     }
     
     .quiz-section {
-      background: var(--bg-primary);
+      background: var(--notion-bg, #ffffff);
       border-radius: var(--radius-lg);
       padding: var(--spacing-xl);
       margin-top: var(--spacing-lg);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
     }
     
     .quiz-question {
@@ -159,20 +177,20 @@
     
     .quiz-option {
       padding: var(--spacing-md);
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
       border-radius: var(--radius-md);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.12s ease;
     }
     
     .quiz-option:hover {
-      border-color: var(--primary-color);
-      background: var(--bg-tertiary);
+      border-color: var(--notion-gray, #9b9a97);
+      background: var(--notion-bg-hover, #f7f6f3);
     }
     
     .quiz-option.selected {
-      border-color: var(--primary-color);
-      background: var(--primary-light);
+      border-color: var(--notion-blue, #2383e2);
+      background: var(--notion-blue, #2383e2);
       color: white;
     }
     
@@ -194,26 +212,25 @@
     }
     
     .material-card {
-      background: var(--bg-primary);
+      background: var(--notion-bg, #ffffff);
       border-radius: var(--radius-md);
       padding: var(--spacing-lg);
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
       display: flex;
       align-items: center;
       gap: var(--spacing-md);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.12s ease;
     }
     
     .material-card:hover {
-      border-color: var(--primary-color);
-      transform: translateY(-2px);
+      border-color: var(--notion-gray, #9b9a97);
       box-shadow: var(--shadow-md);
     }
     
     .material-card.completed {
-      border-color: var(--success-color);
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent);
+      border-color: var(--notion-green, #0f7b6c);
+      background: rgba(15, 123, 108, 0.05);
     }
     
     .material-icon {
@@ -231,7 +248,7 @@
     
     .material-meta {
       font-size: 0.875rem;
-      color: var(--text-muted);
+      color: var(--notion-gray, #9b9a97);
     }
     
     .material-status {
@@ -258,13 +275,14 @@
     <nav class="nav">
       <div class="container">
         <ul class="nav-list">
-          <li class="nav-item"><a href="../index.html" class="nav-link"><span>📊</span> 仪表盘</a></li>
-          <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>📖</span> 词汇学习</a></li>
-          <li class="nav-item"><a href="listening.html" class="nav-link active"><span>👂</span> 听力训练</a></li>
-          <li class="nav-item"><a href="reading.html" class="nav-link"><span>📚</span> 阅读练习</a></li>
-          <li class="nav-item"><a href="writing.html" class="nav-link"><span>✍️</span> 写作练习</a></li>
-          <li class="nav-item"><a href="test.html" class="nav-link"><span>🎯</span> 测试评估</a></li>
-          <li class="nav-item"><a href="calendar.html" class="nav-link"><span>📅</span> 打卡日历</a></li>
+          <li class="nav-item"><a href="../index.html" class="nav-link"><span>◉</span> 仪表盘</a></li>
+          <li class="nav-item"><a href="vocabulary.html" class="nav-link"><span>◇</span> 词汇学习</a></li>
+          <li class="nav-item"><a href="listening.html" class="nav-link active"><span>◆</span> 听力训练</a></li>
+          <li class="nav-item"><a href="reading.html" class="nav-link"><span>◇</span> 阅读练习</a></li>
+          <li class="nav-item"><a href="writing.html" class="nav-link"><span>◇</span> 写作练习</a></li>
+          <li class="nav-item"><a href="test.html" class="nav-link"><span>◇</span> 测试评估</a></li>
+          <li class="nav-item"><a href="calendar.html" class="nav-link"><span>◇</span> 打卡日历</a></li>
+          <li class="nav-item"><a href="materials.html" class="nav-link"><span>◇</span> 我的素材</a></li>
         </ul>
       </div>
     </nav>
@@ -316,7 +334,14 @@
           <div class="audio-meta" id="audioMeta">Susan Cain | 商务沟通 | 中等难度</div>
           
           <div class="audio-controls">
-            <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+            <button class="play-btn" id="playBtn" onclick="togglePlay()" title="播放/暂停">
+              <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+              </svg>
+            </button>
             <div class="audio-progress">
               <div class="audio-progress-bar" onclick="seek(event)">
                 <div class="audio-progress-fill" id="audioProgress"></div>
@@ -421,6 +446,17 @@
         category: "商务沟通",
         difficulty: "中等",
         duration: "5:30",
+        transcript: [
+          { time: 0, text: "When I was nine years old, I went off to summer camp for the first time." },
+          { time: 5, text: "And my mother packed me a suitcase full of books." },
+          { time: 10, text: "Which to me seemed like a perfectly natural thing to do." },
+          { time: 15, text: "Because in my family, reading was the primary group activity." },
+          { time: 20, text: "And this might sound antisocial to you, but for us it was really just a different way of being social." },
+          { time: 28, text: "You have the warmth of your family sitting right next to you." },
+          { time: 33, text: "But you are also free to go roaming around the adventureland inside your own mind." },
+          { time: 40, text: "And I had this idea that camp was going to be just like this, but better." },
+          { time: 46, text: "I had a vision of 10 girls sitting in a cabin cozily reading books in their matching nightgowns." }
+        ],
         questions: [
           {
             question: "What did the speaker's mother pack for summer camp?",
@@ -440,6 +476,15 @@
         category: "工作场景",
         difficulty: "中等",
         duration: "3:45",
+        transcript: [
+          { time: 0, text: "Good morning everyone. Let's get started with our weekly project meeting." },
+          { time: 5, text: "First, I'd like to review our progress from last week." },
+          { time: 10, text: "The development team has completed the first phase of the project." },
+          { time: 15, text: "We're now moving into the testing phase, which will take about two weeks." },
+          { time: 22, text: "I need everyone to submit their status reports by Friday." },
+          { time: 28, text: "Are there any questions or concerns about the timeline?" },
+          { time: 35, text: "Great. Let's meet again next Monday to review our progress." }
+        ],
         questions: [
           {
             question: "What is the main topic of the meeting?",
@@ -454,6 +499,14 @@
         category: "客户沟通",
         difficulty: "简单",
         duration: "2:20",
+        transcript: [
+          { time: 0, text: "Hello, this is John from ABC Company. How are you today?" },
+          { time: 5, text: "I'm calling to follow up on the proposal we sent last week." },
+          { time: 10, text: "Have you had a chance to review the pricing and terms?" },
+          { time: 15, text: "I understand you might need more time to discuss with your team." },
+          { time: 22, text: "Please feel free to contact me if you have any questions." },
+          { time: 28, text: "I look forward to hearing from you soon. Have a great day!" }
+        ],
         questions: [
           {
             question: "What is the purpose of the call?",
@@ -471,11 +524,20 @@
     let completedMaterials = [];
     let isPlaying = false;
     let playbackRate = 1;
+    let currentLineIndex = 0;
     
     document.addEventListener('DOMContentLoaded', function() {
       updateDayBadge();
       loadProgress();
       updateUI();
+      
+      // 预加载语音列表
+      if (window.speechSynthesis) {
+        speechSynthesis.getVoices();
+        speechSynthesis.onvoiceschanged = () => {
+          speechSynthesis.getVoices();
+        };
+      }
     });
     
     function updateDayBadge() {
@@ -513,15 +575,46 @@
     }
     
     function selectMaterial(index) {
+      // 停止当前播放
+      if (isPlaying) {
+        pausePlayback();
+      }
+      
       currentMaterial = index;
       currentQuestion = 0;
       correctCount = 0;
       selectedAnswer = -1;
+      currentLineIndex = 0;
       
       const material = materials[index];
       document.getElementById('audioTitle').textContent = material.title;
       document.getElementById('audioMeta').textContent = `${material.speaker} | ${material.category} | ${material.difficulty}难度`;
       document.getElementById('totalTime').textContent = material.duration;
+      document.getElementById('currentTime').textContent = '0:00';
+      document.getElementById('audioProgress').style.width = '0%';
+      
+      // 更新文字稿
+      const transcriptContainer = document.getElementById('transcript');
+      transcriptContainer.innerHTML = material.transcript.map(line => {
+        const minutes = Math.floor(line.time / 60);
+        const seconds = line.time % 60;
+        const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        return `
+          <div class="transcript-line" data-time="${line.time}">
+            <span class="transcript-time">${timeStr}</span>
+            ${line.text}
+          </div>
+        `;
+      }).join('');
+      
+      // 高亮选中的材料卡片
+      document.querySelectorAll('.material-card').forEach((card, i) => {
+        if (i === index) {
+          card.style.borderColor = 'var(--notion-blue, #2383e2)';
+        } else {
+          card.style.borderColor = completedMaterials.includes(i) ? 'var(--notion-green, #0f7b6c)' : 'var(--notion-gray-light, #e3e2e0)';
+        }
+      });
       
       showQuestion();
       document.getElementById('quizComplete').classList.add('hidden');
@@ -529,49 +622,135 @@
     }
     
     function togglePlay() {
-      isPlaying = !isPlaying;
-      document.getElementById('playBtn').textContent = isPlaying ? '⏸' : '▶';
-      
       if (isPlaying) {
-        simulatePlayback();
+        pausePlayback();
+      } else {
+        startPlayback();
       }
     }
     
-    function simulatePlayback() {
-      // 模拟播放进度
-      let progress = 0;
-      const interval = setInterval(() => {
-        if (!isPlaying || progress >= 100) {
-          clearInterval(interval);
-          return;
+    function startPlayback() {
+      isPlaying = true;
+      updatePlayButton();
+      
+      // 使用 Web Speech API 朗读文字稿
+      if (!window.speechSynthesis) {
+        alert('您的浏览器不支持语音合成功能');
+        isPlaying = false;
+        updatePlayButton();
+        return;
+      }
+      
+      // 停止之前的语音
+      speechSynthesis.cancel();
+      
+      // 获取所有文字稿行
+      const lines = document.querySelectorAll('.transcript-line');
+      const texts = Array.from(lines).map(line => {
+        // 获取纯文本（不包含时间戳）
+        const clone = line.cloneNode(true);
+        const timeSpan = clone.querySelector('.transcript-time');
+        if (timeSpan) timeSpan.remove();
+        return clone.textContent.trim();
+      });
+      
+      currentLineIndex = 0;
+      speakNextLine(texts, lines);
+    }
+    
+    function speakNextLine(texts, lines) {
+      if (!isPlaying || currentLineIndex >= texts.length) {
+        if (currentLineIndex >= texts.length) {
+          // 播放完成
+          isPlaying = false;
+          updatePlayButton();
+          document.getElementById('audioProgress').style.width = '100%';
         }
-        progress += 0.5;
-        document.getElementById('audioProgress').style.width = `${progress}%`;
-        
-        // 更新时间显示
-        const totalSeconds = 330; // 5:30
-        const currentSeconds = Math.floor((progress / 100) * totalSeconds);
-        const minutes = Math.floor(currentSeconds / 60);
-        const seconds = currentSeconds % 60;
-        document.getElementById('currentTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        
-        // 高亮当前文字稿行
-        const lines = document.querySelectorAll('.transcript-line');
-        lines.forEach(line => {
-          const lineTime = parseInt(line.dataset.time);
-          if (currentSeconds >= lineTime && currentSeconds < lineTime + 5) {
-            line.classList.add('active');
-          } else {
-            line.classList.remove('active');
-          }
-        });
-      }, 100 / playbackRate);
+        return;
+      }
+      
+      // 高亮当前行
+      lines.forEach((line, i) => {
+        if (i === currentLineIndex) {
+          line.classList.add('active');
+          // 滚动到当前行
+          line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          line.classList.remove('active');
+        }
+      });
+      
+      // 更新进度条
+      const progress = ((currentLineIndex + 1) / texts.length) * 100;
+      document.getElementById('audioProgress').style.width = `${progress}%`;
+      
+      // 更新时间显示
+      const currentLine = lines[currentLineIndex];
+      const lineTime = parseInt(currentLine.dataset.time);
+      const minutes = Math.floor(lineTime / 60);
+      const seconds = lineTime % 60;
+      document.getElementById('currentTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      // 朗读当前行
+      const utterance = new SpeechSynthesisUtterance(texts[currentLineIndex]);
+      utterance.lang = 'en-US';
+      utterance.rate = playbackRate;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      
+      // 获取英语语音
+      const voices = speechSynthesis.getVoices();
+      const englishVoice = voices.find(v => v.lang === 'en-US') ||
+                          voices.find(v => v.lang.startsWith('en-US')) ||
+                          voices.find(v => v.lang.includes('en')) ||
+                          voices.find(v => v.lang === 'en-GB');
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+      }
+      
+      utterance.onend = () => {
+        currentLineIndex++;
+        speakNextLine(texts, lines);
+      };
+      
+      utterance.onerror = () => {
+        currentLineIndex++;
+        speakNextLine(texts, lines);
+      };
+      
+      speechSynthesis.speak(utterance);
+    }
+    
+    function pausePlayback() {
+      isPlaying = false;
+      updatePlayButton();
+      if (window.speechSynthesis) {
+        speechSynthesis.cancel();
+      }
+    }
+    
+    function updatePlayButton() {
+      const playIcon = document.getElementById('playIcon');
+      const pauseIcon = document.getElementById('pauseIcon');
+      if (isPlaying) {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+      } else {
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+      }
     }
     
     function setSpeed(speed) {
       playbackRate = speed;
       document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
+      
+      // 如果正在播放，重新开始以应用新速度
+      if (isPlaying) {
+        pausePlayback();
+        setTimeout(() => startPlayback(), 100);
+      }
     }
     
     function toggleTranscript() {

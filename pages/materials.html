@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的素材 - English Mastery</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* ========== 页面布局 ========== */
+    .materials-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--spacing-xl, 40px);
+    }
+    
+    @media (min-width: 1024px) {
+      .materials-container {
+        grid-template-columns: 400px 1fr;
+      }
+    }
+    
+    /* ========== 上传区域 ========== */
+    .upload-section {
+      background: var(--notion-bg, #ffffff);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
+      border-radius: 12px;
+      padding: var(--spacing-lg, 24px);
+    }
+    
+    .upload-section h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--notion-dark, #37352f);
+      margin-bottom: var(--spacing-md, 16px);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm, 8px);
+    }
+    
+    /* 标签切换 */
+    .upload-tabs {
+      display: flex;
+      gap: var(--spacing-xs, 4px);
+      margin-bottom: var(--spacing-md, 16px);
+      border-bottom: 1px solid var(--notion-gray-light, #e3e2e0);
+      padding-bottom: var(--spacing-sm, 8px);
+    }
+    
+    .upload-tab {
+      padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+      background: transparent;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--notion-gray, #9b9a97);
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      transition: all 0.12s ease;
+    }
+    
+    .upload-tab:hover {
+      color: var(--notion-dark, #37352f);
+      background: var(--notion-bg-hover, #f7f6f3);
+    }
+    
+    .upload-tab.active {
+      color: var(--notion-dark, #37352f);
+      background: var(--notion-bg-hover, #f7f6f3);
+    }
+    
+    /* 表单样式 */
+    .upload-form {
+      display: none;
+    }
+    
+    .upload-form.active {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: var(--spacing-md, 16px);
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--notion-dark, #37352f);
+      margin-bottom: var(--spacing-xs, 4px);
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
+      border-radius: 8px;
+      font-size: 1rem;
+      color: var(--notion-dark, #37352f);
+      background: var(--notion-bg, #ffffff);
+      transition: border-color 0.12s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--notion-blue, #2383e2);
+    }
+    
+    .form-textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: var(--spacing-md, 16px);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--notion-dark, #37352f);
+      background: var(--notion-bg, #ffffff);
+      resize: vertical;
+      font-family: inherit;
+      line-height: 1.6;
+      transition: border-color 0.12s ease;
+    }
+    
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--notion-blue, #2383e2);
+    }
+    
+    .form-textarea::placeholder {
+      color: var(--notion-gray, #9b9a97);
+    }
+    
+    .char-count {
+      font-size: 0.75rem;
+      color: var(--notion-gray, #9b9a97);
+      text-align: right;
+      margin-top: var(--spacing-xs, 4px);
+    }
+    
+    .char-count.warning {
+      color: var(--notion-orange, #d9730d);
+    }
+    
+    .char-count.error {
+      color: var(--notion-red, #e03e3e);
+    }
+    
+    /* 提交按钮 */
+    .submit-btn {
+      width: 100%;
+      padding: var(--spacing-md, 16px);
+      background: var(--notion-black, #191919);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.12s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm, 8px);
+    }
+    
+    .submit-btn:hover:not(:disabled) {
+      opacity: 0.85;
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .submit-btn .loading-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* ========== 素材列表区域 ========== */
+    .materials-list-section {
+      background: var(--notion-bg, #ffffff);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
+      border-radius: 12px;
+      padding: var(--spacing-lg, 24px);
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-lg, 24px);
+    }
+    
+    .section-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--notion-dark, #37352f);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm, 8px);
+    }
+    
+    .refresh-btn {
+      background: transparent;
+      border: none;
+      padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
+      border-radius: 6px;
+      color: var(--notion-gray, #9b9a97);
+      cursor: pointer;
+      transition: all 0.12s ease;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs, 4px);
+      font-size: 0.875rem;
+    }
+    
+    .refresh-btn:hover {
+      background: var(--notion-bg-hover, #f7f6f3);
+      color: var(--notion-dark, #37352f);
+    }
+    
+    .refresh-btn.refreshing svg {
+      animation: spin 1s linear infinite;
+    }
+    
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: var(--spacing-2xl, 64px) var(--spacing-lg, 24px);
+      color: var(--notion-gray, #9b9a97);
+    }
+    
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: var(--spacing-md, 16px);
+      opacity: 0.5;
+    }
+    
+    .empty-state-text {
+      font-size: 1rem;
+      margin-bottom: var(--spacing-sm, 8px);
+    }
+    
+    .empty-state-hint {
+      font-size: 0.875rem;
+    }
+    
+    /* 素材卡片列表 */
+    .materials-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md, 16px);
+    }
+    
+    /* 素材卡片 */
+    .material-card {
+      background: var(--notion-bg, #ffffff);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
+      border-radius: 8px;
+      padding: var(--spacing-md, 16px);
+      transition: all 0.12s ease;
+    }
+    
+    .material-card:hover {
+      border-color: var(--notion-gray, #9b9a97);
+    }
+    
+    .material-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--spacing-md, 16px);
+      margin-bottom: var(--spacing-sm, 8px);
+    }
+    
+    .material-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--notion-dark, #37352f);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .material-status {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs, 4px);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    
+    .material-status.pending {
+      background: var(--notion-bg-hover, #f7f6f3);
+      color: var(--notion-gray, #9b9a97);
+    }
+    
+    .material-status.processing {
+      background: #e8f4fd;
+      color: var(--notion-blue, #2383e2);
+    }
+    
+    .material-status.completed {
+      background: #e6f7f4;
+      color: var(--notion-green, #0f7b6c);
+    }
+    
+    .material-status.failed {
+      background: #fdeaeb;
+      color: var(--notion-red, #e03e3e);
+    }
+    
+    .material-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md, 16px);
+      font-size: 0.75rem;
+      color: var(--notion-gray, #9b9a97);
+      margin-bottom: var(--spacing-md, 16px);
+    }
+    
+    .material-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs, 4px);
+    }
+    
+    .material-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm, 8px);
+      flex-wrap: wrap;
+    }
+    
+    .action-btn {
+      padding: var(--spacing-xs, 4px) var(--spacing-md, 16px);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs, 4px);
+    }
+    
+    .action-btn.primary {
+      background: var(--notion-black, #191919);
+      color: white;
+      border: none;
+    }
+    
+    .action-btn.primary:hover {
+      opacity: 0.85;
+    }
+    
+    .action-btn.secondary {
+      background: transparent;
+      color: var(--notion-dark, #37352f);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
+    }
+    
+    .action-btn.secondary:hover {
+      background: var(--notion-bg-hover, #f7f6f3);
+    }
+    
+    .action-btn.danger {
+      background: transparent;
+      color: var(--notion-red, #e03e3e);
+      border: 1px solid var(--notion-gray-light, #e3e2e0);
+    }
+    
+    .action-btn.danger:hover {
+      background: #fdeaeb;
+      border-color: var(--notion-red, #e03e3e);
+    }
+    
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* 加载状态 */
+    .loading-state {
+      text-align: center;
+      padding: var(--spacing-xl, 40px);
+      color: var(--notion-gray, #9b9a97);
+    }
+    
+    .loading-state .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--notion-gray-light, #e3e2e0);
+      border-top-color: var(--notion-blue, #2383e2);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto var(--spacing-md, 16px);
+    }
+    
+    /* ========== 提示信息 ========== */
+    .tips-section {
+      background: var(--notion-bg-hover, #f7f6f3);
+      border-radius: 8px;
+      padding: var(--spacing-md, 16px);
+      margin-top: var(--spacing-md, 16px);
+    }
+    
+    .tips-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--notion-dark, #37352f);
+      margin-bottom: var(--spacing-sm, 8px);
+    }
+    
+    .tips-list {
+      font-size: 0.8rem;
+      color: var(--notion-gray-dark, #787774);
+      line-height: 1.6;
+    }
+    
+    .tips-list li {
+      margin-bottom: var(--spacing-xs, 4px);
+    }
+    
+    /* ========== Toast 消息 ========== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--notion-dark, #37352f);
+      color: white;
+      padding: var(--spacing-md, 16px) var(--spacing-lg, 24px);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    .toast.error {
+      background: var(--notion-red, #e03e3e);
+    }
+    
+    .toast.success {
+      background: var(--notion-green, #0f7b6c);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <span class="logo-icon">📚</span>
+            <span>English Mastery</span>
+          </div>
+          <div class="header-right">
+            <div class="day-badge" id="dayBadge">Day 1 / 30</div>
+            <div class="user-menu" id="userMenu">
+              <button class="user-btn" onclick="toggleUserDropdown()">
+                <span class="user-avatar" id="userAvatar">U</span>
+                <span class="user-name" id="userName">用户</span>
+                <span class="dropdown-arrow">▾</span>
+              </button>
+              <div class="user-dropdown" id="userDropdown">
+                <div class="dropdown-header">
+                  <span class="dropdown-email" id="userEmail">user@example.com</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item" onclick="handleLogout()">
+                  <span>↗</span> 退出登录
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="container">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="../index.html" class="nav-link">
+              <span>◉</span> 仪表盘
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="vocabulary.html" class="nav-link">
+              <span>◇</span> 词汇学习
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="listening.html" class="nav-link">
+              <span>◇</span> 听力训练
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="reading.html" class="nav-link">
+              <span>◇</span> 阅读练习
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="writing.html" class="nav-link">
+              <span>◇</span> 写作练习
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="test.html" class="nav-link">
+              <span>◇</span> 测试评估
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="calendar.html" class="nav-link">
+              <span>◇</span> 打卡日历
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="materials.html" class="nav-link active">
+              <span>◆</span> 我的素材
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <h1 style="margin-bottom: var(--spacing-lg, 24px);">📂 我的学习素材</h1>
+        <p class="text-muted" style="margin-bottom: var(--spacing-xl, 40px);">
+          上传你自己的英文素材，AI 会自动为你生成词汇卡片和阅读理解题目
+        </p>
+        
+        <div class="materials-container">
+          <!-- 上传区域 -->
+          <div class="upload-section">
+            <h2>✨ 添加新素材</h2>
+            
+            <!-- 上传方式切换 -->
+            <div class="upload-tabs">
+              <button class="upload-tab active" onclick="switchUploadTab('text')">📝 粘贴文本</button>
+              <button class="upload-tab" onclick="switchUploadTab('url')">🔗 网页链接</button>
+            </div>
+            
+            <!-- 文本上传表单 -->
+            <form id="textForm" class="upload-form active" onsubmit="handleTextSubmit(event)">
+              <div class="form-group">
+                <label class="form-label" for="textTitle">素材标题</label>
+                <input type="text" id="textTitle" class="form-input" placeholder="例如：TED演讲 - 学习的力量" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="textContent">英文内容</label>
+                <textarea id="textContent" class="form-textarea" 
+                  placeholder="在此粘贴英文文章、邮件、报告等内容...&#10;&#10;建议内容在 500-5000 字之间，AI 将从中提取生词和生成理解题目。"
+                  required
+                  oninput="updateCharCount(this)"></textarea>
+                <div class="char-count" id="textCharCount">0 / 10000 字符</div>
+              </div>
+              <button type="submit" class="submit-btn" id="textSubmitBtn">
+                <span>开始生成学习内容</span>
+              </button>
+            </form>
+            
+            <!-- URL上传表单 -->
+            <form id="urlForm" class="upload-form" onsubmit="handleUrlSubmit(event)">
+              <div class="form-group">
+                <label class="form-label" for="urlTitle">素材标题（可选）</label>
+                <input type="text" id="urlTitle" class="form-input" placeholder="留空则自动提取网页标题">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="urlInput">网页链接</label>
+                <input type="url" id="urlInput" class="form-input" placeholder="https://..." required>
+              </div>
+              <button type="submit" class="submit-btn" id="urlSubmitBtn">
+                <span>抓取并生成学习内容</span>
+              </button>
+            </form>
+            
+            <!-- 提示信息 -->
+            <div class="tips-section">
+              <div class="tips-title">💡 小贴士</div>
+              <ul class="tips-list">
+                <li>• 推荐上传 500-3000 字的英文内容</li>
+                <li>• AI 会自动提取 10-15 个核心词汇</li>
+                <li>• 同时生成 3-5 道阅读理解题</li>
+                <li>• 支持新闻、博客、邮件等任意英文文本</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- 素材列表区域 -->
+          <div class="materials-list-section">
+            <div class="section-header">
+              <h2>📚 我的素材库</h2>
+              <button class="refresh-btn" onclick="refreshMaterials()" id="refreshBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6M1 20v-6h6"/>
+                  <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                </svg>
+                <span>刷新</span>
+              </button>
+            </div>
+            
+            <!-- 加载状态 -->
+            <div class="loading-state" id="loadingState">
+              <div class="loading-spinner"></div>
+              <div>加载中...</div>
+            </div>
+            
+            <!-- 空状态 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+              <div class="empty-state-icon">📭</div>
+              <div class="empty-state-text">还没有任何素材</div>
+              <div class="empty-state-hint">在左侧上传你的第一个学习素材吧！</div>
+            </div>
+            
+            <!-- 素材列表 -->
+            <div class="materials-list" id="materialsList" style="display: none;">
+              <!-- 动态渲染 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="../js/auth.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/materials.js"></script>
+  <script>
+    // 检查登录状态
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!Auth.isLoggedIn()) {
+        window.location.href = 'auth.html';
+        return;
+      }
+      
+      // 显示用户信息
+      const user = Auth.getCurrentUser();
+      if (user) {
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+      }
+      
+      // 更新天数
+      const currentDay = Storage.getCurrentDay();
+      document.getElementById('dayBadge').textContent = `Day ${currentDay} / 30`;
+      
+      // 加载素材列表
+      loadMaterials();
+    });
+    
+    // 用户菜单
+    function toggleUserDropdown() {
+      document.getElementById('userDropdown').classList.toggle('show');
+    }
+    
+    document.addEventListener('click', function(e) {
+      const userMenu = document.getElementById('userMenu');
+      const dropdown = document.getElementById('userDropdown');
+      if (userMenu && !userMenu.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+    
+    function handleLogout() {
+      Auth.logout();
+      window.location.href = 'auth.html';
+    }
+  </script>
+</body>
+</html>

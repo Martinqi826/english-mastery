@@ -26,7 +26,9 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     
     # 数据库配置 - 支持直接 DATABASE_URL 或分开配置
-    DATABASE_URL_ENV: Optional[str] = None  # Railway 会自动注入这个
+    # Railway 自动注入 DATABASE_URL，我们用 DATABASE_URL_ENV 接收
+    DATABASE_URL_ENV: Optional[str] = None
+    DATABASE_URL: Optional[str] = None  # 也支持标准的 DATABASE_URL
     DB_TYPE: str = "postgresql"  # postgresql 或 mysql
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
@@ -35,11 +37,11 @@ class Settings(BaseSettings):
     DB_NAME: str = "english_mastery"
     
     @property
-    def DATABASE_URL(self) -> str:
+    def ASYNC_DATABASE_URL(self) -> str:
         """异步数据库连接 URL"""
         # 优先使用环境变量中的 DATABASE_URL（Railway 自动注入）
-        if self.DATABASE_URL_ENV:
-            url = self.DATABASE_URL_ENV
+        url = self.DATABASE_URL_ENV or self.DATABASE_URL
+        if url:
             # Railway PostgreSQL URL 需要转换为 asyncpg 格式
             if url.startswith("postgresql://"):
                 return url.replace("postgresql://", "postgresql+asyncpg://")
@@ -56,8 +58,8 @@ class Settings(BaseSettings):
     @property
     def SYNC_DATABASE_URL(self) -> str:
         """同步数据库连接 URL (用于 Alembic)"""
-        if self.DATABASE_URL_ENV:
-            url = self.DATABASE_URL_ENV
+        url = self.DATABASE_URL_ENV or self.DATABASE_URL
+        if url:
             # 确保是同步驱动格式
             if "asyncpg" in url:
                 return url.replace("+asyncpg", "")

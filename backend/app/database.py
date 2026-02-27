@@ -12,7 +12,7 @@ from app.config import settings
 
 # 创建异步引擎
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    settings.ASYNC_DATABASE_URL,
     echo=settings.DEBUG,
     poolclass=NullPool,  # 使用 NullPool 避免连接池问题
     pool_pre_ping=True,

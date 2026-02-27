@@ -24,12 +24,12 @@ pydantic==2.5.3
 pydantic-settings==2.1.0
 email-validator==2.1.0
 
-# 支付
-wechatpayv3==1.2.35
-alipay-sdk-python==3.7.166
+# 支付 (产品验证阶段暂时注释，正式上线时启用)
+# wechatpayv3==1.2.35
+# alipay-sdk-python==3.7.166
 
-# 腾讯云 COS
-cos-python-sdk-v5==1.9.27
+# 腾讯云 COS (产品验证阶段暂时注释)
+# cos-python-sdk-v5==1.9.27
 
 # HTTP 客户端
 httpx==0.26.0

@@ -8,8 +8,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PORT=8000
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -29,16 +28,17 @@ COPY app/ ./app/
 COPY alembic/ ./alembic/
 COPY alembic.ini .
 
+# 复制启动脚本
+COPY start.sh .
+RUN chmod +x start.sh
+
 # 创建非 root 用户
 RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-# 暴露端口（Railway 会覆盖这个）
-EXPOSE ${PORT}
+# 暴露端口
+EXPOSE 8000
 
-# 不使用 Docker 内置健康检查，让 Railway 处理
-# HEALTHCHECK NONE
-
-# 启动命令 - 使用 shell 形式以支持环境变量
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT}
+# 启动命令 - 使用启动脚本
+CMD ["./start.sh"]

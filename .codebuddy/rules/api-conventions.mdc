@@ -1,0 +1,85 @@
+---
+description: API 开发规范
+alwaysApply: true
+enabled: true
+updatedAt: 2026-02-28T10:00:00.000Z
+provider: 
+---
+
+# API 开发规范
+
+后端 API 开发必须遵循以下规范。
+
+## 响应格式
+
+统一使用以下响应格式：
+
+```json
+{
+  "code": 0,
+  "message": "操作成功",
+  "data": { ... }
+}
+```
+
+错误响应：
+```json
+{
+  "code": 40001,
+  "message": "用户名或密码错误",
+  "data": null
+}
+```
+
+## 错误码规范
+
+| 范围 | 含义 |
+|------|------|
+| 0 | 成功 |
+| 400xx | 客户端错误（参数、认证等） |
+| 500xx | 服务端错误 |
+
+## API 路径规范
+
+```
+/api/v1/{resource}          # 资源集合
+/api/v1/{resource}/{id}     # 单个资源
+/api/v1/{resource}/{id}/{sub}  # 子资源
+```
+
+## 认证
+
+需要认证的接口使用 Bearer Token：
+```python
+from app.api.deps import get_current_user
+
+@router.get("/protected")
+async def protected_route(user = Depends(get_current_user)):
+    ...
+```
+
+## 代码规范
+
+```python
+# 使用 async/await
+async def get_items():
+    ...
+
+# 完整的类型注解
+async def create_item(item: ItemCreate) -> ItemResponse:
+    ...
+
+# 中文错误提示
+raise HTTPException(status_code=400, detail="参数不能为空")
+```
+
+## 文件组织
+
+```
+backend/app/api/v1/
+├── __init__.py      # 路由注册
+├── auth.py          # 认证相关
+├── users.py         # 用户相关
+├── progress.py      # 进度相关
+└── materials.py     # 素材相关
+```

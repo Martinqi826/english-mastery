@@ -1,0 +1,71 @@
+---
+description: 数据库操作安全规则
+alwaysApply: true
+enabled: true
+updatedAt: 2026-02-28T10:00:00.000Z
+provider: 
+---
+
+# 数据库安全规则
+
+本项目已有注册用户，数据库操作必须遵循以下安全规则。
+
+## ⛔ 绝对禁止
+
+1. **禁止使用 drop_all / create_all**
+   ```python
+   # ❌ 绝对禁止
+   Base.metadata.drop_all(engine)
+   Base.metadata.create_all(engine)
+   ```
+
+2. **禁止直接删除或重建表**
+   ```sql
+   -- ❌ 禁止
+   DROP TABLE users;
+   TRUNCATE TABLE users;
+   ```
+
+3. **禁止修改已有字段类型**
+   - 可能导致数据丢失或类型转换错误
+
+## ✅ 必须执行
+
+1. **使用 Alembic 迁移**
+   ```bash
+   cd backend
+   alembic revision -m "描述变更"
+   alembic upgrade head
+   ```
+
+2. **新字段必须有默认值或允许 NULL**
+   ```python
+   # ✅ 正确
+   new_column = Column(String(100), nullable=True)
+   new_column = Column(Integer, server_default='0')
+   ```
+
+3. **变更前考虑数据兼容性**
+
+## 迁移文件规范
+
+```python
+def upgrade():
+    # 添加新表或字段
+    op.create_table(...)
+    op.add_column(...)
+
+def downgrade():
+    # 提供回滚方案
+    op.drop_table(...)
+    op.drop_column(...)
+```
+
+## 部署流程
+
+Railway 启动命令已配置自动迁移：
+```bash
+alembic upgrade head && uvicorn app.main:app ...
+```
+
+提交迁移文件后，Railway 自动执行。

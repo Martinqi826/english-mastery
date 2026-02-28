@@ -1,0 +1,56 @@
+---
+description: 项目上下文信息
+alwaysApply: true
+enabled: true
+updatedAt: 2026-02-28T10:00:00.000Z
+provider: 
+---
+
+# English Mastery 项目上下文
+
+## 项目概要
+
+English Mastery 是一个英语进阶学习平台，帮助用户从 B1-B2 水平提升到 C1-C2。
+
+## 技术栈
+
+```
+前端: HTML5 + CSS3 + Vanilla JavaScript
+后端: FastAPI (Python 3.11) + PostgreSQL
+部署: Vercel (前端) + Railway (后端)
+```
+
+## 在线地址
+
+```
+前端: https://english-mastery-app.vercel.app
+后端: https://english-mastery-production.up.railway.app
+API文档: https://english-mastery-production.up.railway.app/docs
+```
+
+## 重要提醒
+
+1. **项目已有真实用户** - 数据操作必须安全
+2. **Notion 设计风格** - UI 遵循极简主义
+3. **Alembic 迁移** - 数据库变更必须使用迁移
+
+## 文档索引
+
+新加入时请阅读：
+1. `README.md` - 项目概述
+2. `CONTRIBUTING.md` - 贡献指南
+3. `AI_GUIDE.md` - AI 协作指南
+4. `ARCHITECTURE.md` - 架构决策
+5. `DESIGN_GUIDE.md` - 设计规范
+
+## 核心功能模块
+
+- 用户认证 (JWT)
+- 学习仪表盘
+- 词汇学习
+- 听力训练
+- 阅读练习
+- 写作练习
+- 测试评估
+- 打卡日历
+- 用户素材管理 (AI 生成)

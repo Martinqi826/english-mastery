@@ -4,6 +4,66 @@
 
 ---
 
+## [v2.1.1] - 2026-02-28
+
+### 📚 文档体系建设
+
+为支持多人协作和 AI 助手协作，建立完整的文档体系：
+
+#### ✨ 新增文档
+- **CONTRIBUTING.md** - 贡献指南，新参与者必读
+- **ARCHITECTURE.md** - 架构决策记录 (ADR)
+- **AI_GUIDE.md** - AI 协作专用指南
+
+#### 📁 新增目录
+- **docs/** - 扩展文档目录
+  - `docs/api/` - API 详细文档
+  - `docs/decisions/` - 决策记录
+  - `docs/guides/` - 使用指南
+
+#### 🤖 AI 规则 (.codebuddy/rules/)
+- `database-safety.mdc` - 数据库安全规则
+- `api-conventions.mdc` - API 开发规范
+- `project-context.mdc` - 项目上下文信息
+
+---
+
+## [v2.1.0] - 2026-02-28
+
+### 🎯 用户自定义素材功能 MVP
+
+#### ✨ 新增功能
+- **素材管理系统**
+  - 支持 URL 抓取网页内容
+  - 支持直接粘贴文本
+  - 后台异步处理素材
+
+- **AI 内容生成**
+  - Claude API 集成
+  - 自动提取核心词汇（含音标、释义、例句）
+  - 自动生成阅读理解题目
+
+- **学习模块集成**
+  - 词汇学习页支持自定义素材模式
+  - 阅读练习页支持自定义素材模式
+
+#### 📁 新增文件
+- `pages/materials.html` - 素材管理页面
+- `js/materials.js` - 素材管理前端逻辑
+- `backend/app/api/v1/materials.py` - 素材 API
+- `backend/app/models/material.py` - 素材数据模型
+- `backend/app/schemas/material.py` - 素材数据结构
+- `backend/app/services/ai_service.py` - AI 内容生成服务
+- `backend/app/services/scraper_service.py` - 网页抓取服务
+- `backend/alembic/versions/20260227_add_user_materials.py` - 数据库迁移
+
+#### 🎨 样式修复
+- 统一所有页面导航栏图标为 Notion 风格符号 (◉◆◇)
+- 移除彩色 emoji 导航图标
+- 新增 `DESIGN_GUIDE.md` 设计规范文档
+
+---
+
 ## [v2.0.0] - 2026-02-27
 
 ### 🚀 重大更新：全栈商业化改造
